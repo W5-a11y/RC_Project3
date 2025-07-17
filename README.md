@@ -9,6 +9,7 @@ Welcome to **Trivia Daily**, a fun and fast-paced trivia game designed for web b
 - 📱 **Platform**: Web-based (Chrome, Safari, etc.)
 
 ## 🗂️ Project Structure
+```
 quiz-app/
 ├── frontend/                 # Web UI (HTML/JS/CSS or React)
 │   ├── index.html
@@ -37,7 +38,7 @@ quiz-app/
 │
 ├── README.md
 └── requirements.txt
-
+```
 ---
 
 ## 🔗 API Endpoints
