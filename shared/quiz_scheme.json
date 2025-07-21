@@ -1,30 +1,26 @@
 {
-  "type": "object",
-  "required": ["date", "topic", "questions"],
-  "properties": {
-    "date": {
-      "type": "string",
-      "format": "date"
-    },
-    "topic": {
-      "type": "string"
-    },
-    "questions": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["q", "options", "answer"],
-        "properties": {
-          "q": { "type": "string" },
-          "options": {
-            "type": "array",
-            "items": { "type": "string" },
-            "minItems": 4,
-            "maxItems": 4
-          },
-          "answer": { "type": "string" }
+  "date": "07/18/2025",
+  "topic": ["Los Angeles"],
+  "questions": [
+    {
+            "question": "Which city is known as the City of Angels?",
+            "options": ["San Francisco", "Hong Kong", "Los Angeles", "New York"],
+            "answer": "Los Angeles"
+        },
+        {
+            "question": "What is the largest city in California?",
+            "options": ["San Diego", "Los Angeles", "San Francisco", "Sacramento"],
+            "answer": "Los Angeles"
+        },
+        {
+            "question": "Which city is famous for Hollywood?",
+            "options": ["Los Angeles", "New York", "Chicago", "Miami"],
+            "answer": "Los Angeles"
+        },
+        {
+            "question": "What is the main airport in Los Angeles?",
+            "options": ["LAX", "JFK", "ORD", "ATL"],
+            "answer": "LAX"
         }
-      }
-    }
-  }
+  ]
 }
