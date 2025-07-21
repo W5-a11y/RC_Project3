@@ -11,6 +11,3 @@ def store_questions_to_db(questions):
         if len(item["options"]) == 4 and item["answer"] in item["options"]:
             db.session.add(q)
     db.session.commit()
-
-# questions = generate_questions_from_gemini(topic="Coffee")
-# store_questions_to_db(questions)

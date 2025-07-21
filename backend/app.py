@@ -3,13 +3,14 @@ import requests
 from flask import Flask, jsonify, request, render_template
 from models import db, User, Quiz, ScoreLog
 from datetime import date
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db.init_app(app)
-
+db = SQLAlchemy(app)
 # Home route -- HTML page index.html
 @app.route("/")
 def index():
@@ -42,7 +43,7 @@ def get_today_quiz():
         return jsonify({"message": f"No quiz available for today."}), 404 
 
 # Path to create or update user information
-@app.route("/submit_info", methods=["POST"])
+@app.route("/submit_user_info", methods=["POST"])
 def submit_user():
     data = request.json
     uid = data["uid"]
