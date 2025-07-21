@@ -60,10 +60,13 @@ button:focus-visible {
 
 .quiz-container {
   text-align: center;
-  padding: 40px;
+  padding: 20px;
   background-color: #01460d;
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
+
 
 .quiz-title {
   font-size: 2rem;
@@ -75,8 +78,11 @@ button:focus-visible {
   padding: 20px;
   border-radius: 10px;
   display: inline-block;
-  max-width: 500px;
+  max-width: 90%;
   width: 100%;
+  align-items: center;
+  justify-content:  center;
+  margin: 0 auto;
 }
 
 .question {
@@ -110,6 +116,43 @@ button:focus-visible {
 .option-btn.wrong {
   background-color: #f8a0a0;
 }
+
+.aspect-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #121212; /* or whatever background you want */
+  overflow: hidden;
+}
+
+.aspect-box {
+  aspect-ratio: 9 / 16;
+  width: 100%;
+  height: auto;
+  max-height: 100vh;
+  max-width: calc(100vh * 9 / 16); /* Enforce the 9:16 ratio */
+  background-color: #01460d;
+  border-radius: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+  padding: 1rem;
+  overflow: auto;
+}
+
+h1 {
+  text-align: center;
+}
+
 
 @media (prefers-color-scheme: light) {
   :root {

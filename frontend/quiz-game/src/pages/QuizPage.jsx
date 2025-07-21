@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation} from 'react-router-dom'
 import '../index.css'
 
 function QuizPage() {
@@ -7,6 +8,8 @@ function QuizPage() {
   const [showResults, setShowResults] = useState(false)
   const [clickedIndex, setClickedIndex] = useState(null)
   const [isCorrect, setIsCorrect] = useState(null)
+  const location = useLocation()
+  const topic = location.state?.topic || 'Default'
 
   const questions = [
     {
@@ -56,7 +59,7 @@ function QuizPage() {
 
   return (
     <div className="quiz-container">
-      <h1 className="quiz-title">Quiz Game</h1>
+      <h1 className="quiz-title">Quiz Topic: {topic}</h1>
 
       <div className="question-box">
         <p className="question">{question.question}</p>
