@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL") #DATABASE_URL = mysql+mysqlconnector://admin:trivia_app25@database-1.c36awkaocf5l.us-east-2.rds.amazonaws.com/quiz_db
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
