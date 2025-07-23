@@ -1,16 +1,23 @@
 import os
+import sys
 import requests
 from flask import Flask, jsonify, request, render_template
 from models import db, User, Quiz, ScoreLog
 from datetime import date
-from flask_sqlalchemy import SQLAlchemy
+from quiz_generator.quiz_gen import generate_quiz
+import json
+from dotenv import load_dotenv
 
+
+load_dotenv()
 app = Flask(__name__)
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db.init_app(app)
 
-db = SQLAlchemy(app)
+
 # Home route -- HTML page index.html
 @app.route("/")
 def index():
@@ -32,20 +39,56 @@ def end_stats():
 @app.route("/today-quiz", methods=["GET"])
 def get_today_quiz():
     today = str(date.today())
-    quiz = Quiz.query.filter_by(date=today).first()
+    location = get_region_by_ip(request.remote_addr)
+    if location == "Unknown" or location == "Other":
+        return jsonify({"error": "Unknown location"}), 400
+    topic = request.args.get("topic")  # or set a default topic
+    quiz = Quiz.query.filter_by(date=today, location=location).first()
     if quiz:
         return jsonify({
             "date": quiz.date,
+            "location": location,
             "topic": quiz.topic,
-            "questions": quiz.questions
+            "questions": json.loads(quiz.questions)
         })
     else:
-        return jsonify({"message": f"No quiz available for today."}), 404 
+        quiz_data = generate_and_store_quiz(topic, location)
+        if "error" in quiz_data:
+            return jsonify({"error": quiz_data["error"]}), quiz_data.get("status", 500)
+        return quiz_data
+
+def generate_and_store_quiz(topic, location):
+    quiz_data = generate_quiz(topic, location)
+    if not quiz_data:
+        return {"error": "Failed to generate quiz", "status": 500}
+    
+    quiz = Quiz()
+    quiz.date = quiz_data["date"]
+    quiz.topic = quiz_data["topic"]
+    quiz.location = location
+    quiz.questions = json.dumps(quiz_data["questions"])
+    db.session.add(quiz)
+    db.session.commit()
+    return quiz_data
+
+@app.route("/generate-quiz", methods=["GET"])
+def generate_quiz_route():
+    topic = request.args.get("topic")
+    if not topic:
+        return jsonify({"error": "Missing topic parameter"}), 400
+    location = get_region_by_ip(request.remote_addr)
+    quiz_data = generate_and_store_quiz(topic, location)
+    if "error" in quiz_data:
+        return jsonify({"error": quiz_data["error"]}), quiz_data.get("status", 500)
+    return jsonify(quiz_data)
 
 # Path to create or update user information
 @app.route("/submit_user_info", methods=["POST"])
 def submit_user():
     data = request.json
+    if not data:
+        return jsonify({"error": "No JSON data provided"}), 400
+    
     uid = data["uid"]
     name = data.get("name", "Guest") #default
     ip = request.remote_addr
@@ -57,7 +100,13 @@ def submit_user():
         user.last_active = today
         user.region = region
     else:
-        user = User(uid=uid, name=name, region=region, last_active = today, points=0, streak=0)
+        user = User()
+        user.uid = uid
+        user.name = name
+        user.region = region
+        user.last_active = today
+        user.points = 0
+        user.streak = 0
         db.session.add(user)
 
     db.session.commit()
@@ -72,14 +121,16 @@ def submit_user():
     })
 
 def get_region_by_ip(ip):
+    ip = requests.get('https://api.ipify.org').text
     try:
         response = requests.get(f"https://ipinfo.io/{ip}/json")
         data = response.json()
         city = data.get("city", "").lower()
+        print("detected city: ", city)
         if "hong" in city or "kowloon" in city:
             return "Hong Kong"
-        elif "los" in city or "angeles" in city:
-            return "Los Angeles"
+        elif "el" in city or "folsom" in city:
+            return "Folsom"
         else:
             return "Other"
     except:
@@ -118,7 +169,13 @@ def submit_score():
     # Add to ScoreLog
     # ERROR FIX: ScoreLog model has 'time' and 'bonus' which are not in data.
     # Defaulting them or requiring them. Assuming they are optional for now.
-    log = ScoreLog(uid=uid, score=score, date=today_str, streak=user.streak) # 'time' and 'bonus' are missing
+    log = ScoreLog()
+    log.uid = uid
+    log.score = score
+    log.date = today_str
+    log.time = 0  # Default value
+    log.bonus = 0  # Default value
+    log.streak = user.streak
     db.session.add(log)
 
     db.session.commit()

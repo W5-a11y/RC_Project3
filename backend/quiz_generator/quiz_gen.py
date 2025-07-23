@@ -2,14 +2,17 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 import json
+from datetime import datetime
 import re
 
 load_dotenv()
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash")
+
 
 def generate_quiz(topic, location):
+    today = datetime.now().strftime("%Y-%m-%d")
     prompt = f"""
         Generate 5 trivia questions about {topic}. 
         Each question should have 4 answer choices with only 1 correct answer from the options. All the questions should be related to the topic.
@@ -36,16 +39,12 @@ def generate_quiz(topic, location):
     else:
         print("No JSON array found in the response.")
 
+    output = {
+        "date": today,
+        "topic": topic,
+        "location": location,
+        "questions": quiz_data
+    }
 
-    if os.path.exists("quiz_output.json"):
-        with open("quiz_output.json", "w") as f:
-            json.dump(quiz_data, f, indent=2)
-    else:
-        os.makedirs("quiz_output", exist_ok=True)
-        with open("quiz_output.json", "w") as f:
-            json.dump(quiz_data, f, indent=2)
+    return output
 
-
-
-
-generate_quiz("Geography", "California")
