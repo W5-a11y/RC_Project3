@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 from flask import Flask, jsonify, request, render_template
 from models import db, User, Quiz, ScoreLog
