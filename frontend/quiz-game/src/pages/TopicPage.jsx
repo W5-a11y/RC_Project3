@@ -36,7 +36,7 @@ function TopicPage() {
         prizeNumber={prizeNumber}
         data={data}
         onStopSpinning={handleStopSpinning}
-        backgroundColors={['#3e3e3e', '#df3428']}
+        backgroundColors={['#99582a', '#606c38']}
         textColors={['#ffffff']}
       />
       <button onClick={handleSpinClick}>Spin</button>

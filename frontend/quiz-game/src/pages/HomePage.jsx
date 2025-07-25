@@ -1,18 +1,36 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import StoreIcon from '../assets/store.svg?react';
+import CreditsIcon from '../assets/credits.svg?react';
 
 function HomePage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
     <div>
-      <h1>Welcome to the Quiz Game</h1>
-      {/* go to sign in page if not signed in */}
-      <button onClick={() => navigate('/topics')}>Start</button>  {/*go to topics page*/}
-      <button onClick={() => navigate('/store')}>Store/Customization</button> {/*go to profile customization page*/}
-      <button onClick={() => navigate('/credits')}>Credits</button> {/*go to credits page*/}
+      {/* Main Centered Content */}
+      <div className="text-center">
+        <h1>Welcome to the Quiz Game</h1>
+        <button onClick={() => navigate('/topics')}>
+          Play Game
+        </button>
+      </div>
+
+      {/* Bottom Buttons with Icons */}
+      <button
+        onClick={() => navigate('/credits')}
+        className="icon-button bottom-left"
+      >
+        <CreditsIcon />
+      </button>
+
+      <button
+        onClick={() => navigate('/store')}
+        className="icon-button bottom-right"
+      >
+        <StoreIcon />
+      </button>
     </div>
-    
-  )
+  );
 }
 
-export default HomePage
+export default HomePage;

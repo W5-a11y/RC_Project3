@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation} from 'react-router-dom'
+import QuestionBox from '../assets/QuizContainer.svg?react';
 import '../index.css'
 
 function QuizPage() {
+  const [timeLeft, setTimeLeft] = useState(30)
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [score, setScore] = useState(0)
   const [showResults, setShowResults] = useState(false)
@@ -24,6 +26,34 @@ function QuizPage() {
     },
     // more questions...
   ]
+
+  useEffect(() => {
+    if (clickedIndex !== null) return // stop timer if answered
+    // move to next question if time is 0
+    if (timeLeft === 0) {
+      setTimeout(() => {
+        if (currentQuestion === questions.length - 1) {
+          setShowResults(true)
+        } else {
+          setCurrentQuestion((prev) => prev + 1)
+          setTimeLeft(30)
+          setClickedIndex(null)
+          setIsCorrect(null)
+        }
+      }, 800)
+    }
+
+    const timer = setTimeout(() => {
+      setTimeLeft((prev) => prev - 1)
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [timeLeft, clickedIndex, currentQuestion])
+
+  // reset timer on new question
+  useEffect(() => {
+    setTimeLeft(30)
+  }, [currentQuestion])
 
   const handleAnswerClick = (index) => {
     const correct = index === questions[currentQuestion].correct
@@ -59,10 +89,14 @@ function QuizPage() {
 
   return (
     <div className="quiz-container">
-      <h1 className="quiz-title">Quiz Topic: {topic}</h1>
+      <h1 className="h2">Topic: {topic}</h1>
+      <div className="question-box-wrapper">
+        <div className="question-box-image">
+          <QuestionBox className="question-svg" />
+          <p className="quiz-question-text">{question.question}</p>
+          <span className="timer">{timeLeft}s</span>
+        </div>
 
-      <div className="question-box">
-        <p className="question">{question.question}</p>
         <div className="options">
           {question.options.map((option, idx) => {
             let className = "option-btn"
@@ -73,7 +107,7 @@ function QuizPage() {
             return (
               <button
                 key={idx}
-                className={className}
+                className={className="option-btn body-base"}
                 onClick={() => handleAnswerClick(idx)}
                 disabled={clickedIndex !== null}
               >
@@ -83,6 +117,7 @@ function QuizPage() {
           })}
         </div>
       </div>
+
     </div>
   )
 }
