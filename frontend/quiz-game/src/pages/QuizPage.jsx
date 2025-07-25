@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { useLocation} from 'react-router-dom'
+import { useLocation, useNavigate} from 'react-router-dom'
 import QuestionBox from '../assets/QuizContainer.svg?react';
 import '../index.css'
 
 function QuizPage() {
+  const navigate = useNavigate()
   const [timeLeft, setTimeLeft] = useState(30)
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [score, setScore] = useState(0)
@@ -34,6 +35,12 @@ function QuizPage() {
       setTimeout(() => {
         if (currentQuestion === questions.length - 1) {
           setShowResults(true)
+          navigate('/result', {
+            state: {
+              score,
+              total: questions.length,
+            },
+          })
         } else {
           setCurrentQuestion((prev) => prev + 1)
           setTimeLeft(30)
@@ -44,7 +51,7 @@ function QuizPage() {
     }
 
     const timer = setTimeout(() => {
-      setTimeLeft((prev) => prev - 1)
+      setTimeLeft((prev) => Math.max(0, prev - 1))
     }, 1000)
 
     return () => clearTimeout(timer)
@@ -68,21 +75,18 @@ function QuizPage() {
     setTimeout(() => {
       if (currentQuestion === questions.length - 1) {
         setShowResults(true)
+        navigate('/result', {
+            state: {
+              score,
+              total: questions.length,
+            },
+        })
       } else {
         setCurrentQuestion((prev) => prev + 1)
         setClickedIndex(null)
         setIsCorrect(null)
       }
     }, 800)
-  }
-
-  if (showResults) {
-    return (
-      <div className="quiz-container">
-        <h1 className="quiz-title">Results</h1>
-        <p>You scored {score} out of {questions.length}</p>
-      </div>
-    )
   }
 
   const question = questions[currentQuestion]
@@ -99,7 +103,7 @@ function QuizPage() {
 
         <div className="options">
           {question.options.map((option, idx) => {
-            let className = "option-btn"
+            let className = "option-btn body-base"
             if (clickedIndex === idx) {
               className += isCorrect ? " correct" : " wrong"
             }
@@ -107,7 +111,7 @@ function QuizPage() {
             return (
               <button
                 key={idx}
-                className={className="option-btn body-base"}
+                className={className}
                 onClick={() => handleAnswerClick(idx)}
                 disabled={clickedIndex !== null}
               >

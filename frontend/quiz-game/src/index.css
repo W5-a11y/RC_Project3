@@ -175,6 +175,7 @@ button:focus-visible {
   aspect-ratio: 4 / 3; 
   margin-bottom: -75px;
   margin-top: -10px;
+  pointer-events: none;
 }
 
 .question-svg {
@@ -243,10 +244,10 @@ button:focus-visible {
   transition: background-color 0.3s ease;
 }
 .option-btn:hover {
-  background-color: #e0e0e0;
+  background-color: #dda15e;
 }
 .option-btn.correct {
-  background-color: #283608;
+  background-color: #606c38;
 }
 .option-btn.wrong {
   background-color: #6f1d1b;
