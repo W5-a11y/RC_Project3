@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate} from 'react-router-dom'
 import QuestionBox from '../assets/QuizContainer.svg?react';
+import HintIcon from '../assets/HintButton.svg?react';
 import '../index.css'
 
 function QuizPage() {
   const navigate = useNavigate()
   const [timeLeft, setTimeLeft] = useState(30)
   const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [eliminatedOptions, setEliminatedOptions] = useState([])
   const [score, setScore] = useState(0)
   const [showResults, setShowResults] = useState(false)
   const [clickedIndex, setClickedIndex] = useState(null)
@@ -35,15 +37,9 @@ function QuizPage() {
       setTimeout(() => {
         if (currentQuestion === questions.length - 1) {
           setShowResults(true)
-          navigate('/result', {
-            state: {
-              score,
-              total: questions.length,
-            },
-          })
         } else {
           setCurrentQuestion((prev) => prev + 1)
-          setTimeLeft(30)
+          setTimeLeft(100000)
           setClickedIndex(null)
           setIsCorrect(null)
         }
@@ -62,6 +58,12 @@ function QuizPage() {
     setTimeLeft(30)
   }, [currentQuestion])
 
+  useEffect(() => {
+    if (showResults) {
+      navigate('/result', { state: { score, total: questions.length } })
+    }
+  }, [showResults])
+
   const handleAnswerClick = (index) => {
     const correct = index === questions[currentQuestion].correct
     setClickedIndex(index)
@@ -71,16 +73,11 @@ function QuizPage() {
       setScore(score + 1)
     }
 
+
     // Wait 800ms, then go to next question or results
     setTimeout(() => {
       if (currentQuestion === questions.length - 1) {
         setShowResults(true)
-        navigate('/result', {
-            state: {
-              score,
-              total: questions.length,
-            },
-        })
       } else {
         setCurrentQuestion((prev) => prev + 1)
         setClickedIndex(null)
@@ -100,7 +97,7 @@ function QuizPage() {
           <p className="quiz-question-text">{question.question}</p>
           <span className="timer">{timeLeft}s</span>
         </div>
-
+        
         <div className="options">
           {question.options.map((option, idx) => {
             let className = "option-btn body-base"
@@ -120,6 +117,10 @@ function QuizPage() {
             )
           })}
         </div>
+        
+        <button className="icon-button">
+          <HintIcon/>
+        </button>
       </div>
 
     </div>
