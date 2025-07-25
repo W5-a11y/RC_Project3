@@ -7,8 +7,9 @@ import '../index.css'
 function QuizPage() {
   const navigate = useNavigate()
   const [timeLeft, setTimeLeft] = useState(30)
+  const [questions, setQuestions] = useState([])
   const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [eliminatedOptions, setEliminatedOptions] = useState([])
+  const [eliminatedOptions, setEliminatedOptions] = useState([]) // later for hint
   const [score, setScore] = useState(0)
   const [showResults, setShowResults] = useState(false)
   const [clickedIndex, setClickedIndex] = useState(null)
@@ -16,19 +17,42 @@ function QuizPage() {
   const location = useLocation()
   const topic = location.state?.topic || 'Default'
 
-  const questions = [
-    {
-      question: 'What is the capital of France?',
-      options: ['Paris', 'London', 'Berlin', 'Madrid'],
-      correct: 0,
-    },
-    {
-      question: 'Which planet is known as the Red Planet?',
-      options: ['Earth', 'Venus', 'Mars', 'Jupiter'],
-      correct: 2,
-    },
-    // more questions...
-  ]
+  // const questions = [
+  //   {
+  //     question: 'What is the capital of France?',
+  //     options: ['Paris', 'London', 'Berlin', 'Madrid'],
+  //     correct: 0,
+  //   },
+  //   {
+  //     question: 'Which planet is known as the Red Planet?',
+  //     options: ['Earth', 'Venus', 'Mars', 'Jupiter'],
+  //     correct: 2,
+  //   },
+  //   // more questions...
+  // ]
+  useEffect(() => {
+    async function fetchQuiz() {
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/today-quiz?topic=${topic}`);
+        const data = await res.json()
+        if (data.questions) {
+          // Normalize questions to match expected format
+          const formatted = data.questions.map(q => ({
+            question: q.question,
+            options: q.options,
+            answer: q.options.indexOf(q.answer)  // Get index of correct string
+          }))
+          setQuestions(formatted)
+        } else {
+          console.error(data.error || "Failed to load quiz")
+        }
+      } catch (err) {
+        console.error("Error fetching quiz:", err)
+      }
+    }
+
+    fetchQuiz()
+  }, [topic])
 
   useEffect(() => {
     if (clickedIndex !== null) return // stop timer if answered
@@ -65,7 +89,7 @@ function QuizPage() {
   }, [showResults])
 
   const handleAnswerClick = (index) => {
-    const correct = index === questions[currentQuestion].correct
+    const correct = index === questions[currentQuestion].answer
     setClickedIndex(index)
     setIsCorrect(correct)
 
@@ -86,7 +110,8 @@ function QuizPage() {
     }, 800)
   }
 
-  const question = questions[currentQuestion]
+  if (!questions.length) return <div>Loading quiz...</div>
+  const question = questions[currentQuestion] || {}
 
   return (
     <div className="quiz-container">

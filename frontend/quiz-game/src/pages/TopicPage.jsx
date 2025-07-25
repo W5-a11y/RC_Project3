@@ -23,8 +23,9 @@ function TopicPage() {
   }
 
   const handleStopSpinning = () => {
+    const selectedTopic = data[prizeNumber].option
     setTimeout(() => {
-      navigate('/quiz')
+      navigate('/quiz', { state: { topic: selectedTopic}})
     }, 1000)
   }
 
