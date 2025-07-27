@@ -15,7 +15,7 @@ function LogInPage() {
   }
 
   return (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
+    <div style={{ padding: "2rem", textAlign: "center"}}>
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
         <input
@@ -23,10 +23,10 @@ function LogInPage() {
           placeholder="Enter your name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          style={{ padding: "0.5rem", fontSize: "1rem", width: "200px" }}
+          className="input-box body-base"
         />
         <br />
-        <button type="submit" style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>
+        <button type="submit" style={{ marginTop: "2rem", padding: "0.5rem 1rem", fontSize: '1.5em' }}>
           Start Quiz
         </button>
       </form>

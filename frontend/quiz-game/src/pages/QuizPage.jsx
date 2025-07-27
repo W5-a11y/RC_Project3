@@ -10,6 +10,7 @@ function QuizPage() {
   const [questions, setQuestions] = useState([])
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [eliminatedOptions, setEliminatedOptions] = useState([]) // later for hint
+  const [showHintMessage, setShowHintMessage] = useState(false);
   const [score, setScore] = useState(0)
   const [showResults, setShowResults] = useState(false)
   const [clickedIndex, setClickedIndex] = useState(null)
@@ -17,19 +18,7 @@ function QuizPage() {
   const location = useLocation()
   const topic = location.state?.topic || 'Default'
 
-  // const questions = [
-  //   {
-  //     question: 'What is the capital of France?',
-  //     options: ['Paris', 'London', 'Berlin', 'Madrid'],
-  //     correct: 0,
-  //   },
-  //   {
-  //     question: 'Which planet is known as the Red Planet?',
-  //     options: ['Earth', 'Venus', 'Mars', 'Jupiter'],
-  //     correct: 2,
-  //   },
-  //   // more questions...
-  // ]
+  // get the quiz questions from backend
   useEffect(() => {
     async function fetchQuiz() {
       try {
@@ -55,7 +44,7 @@ function QuizPage() {
   }, [topic])
 
   useEffect(() => {
-    if (clickedIndex !== null) return // stop timer if answered
+    if (clickedIndex !== null || !questions.length) return // stop timer if answered
     // move to next question if time is 0
     if (timeLeft === 0) {
       setTimeout(() => {
@@ -75,7 +64,7 @@ function QuizPage() {
     }, 1000)
 
     return () => clearTimeout(timer)
-  }, [timeLeft, clickedIndex, currentQuestion])
+  }, [timeLeft, clickedIndex, currentQuestion, questions.length])
 
   // reset timer on new question
   useEffect(() => {
@@ -84,7 +73,7 @@ function QuizPage() {
 
   useEffect(() => {
     if (showResults) {
-      navigate('/result', { state: { score, total: questions.length } })
+      navigate('/result', { state: { score, total: questions.length * 100 } })
     }
   }, [showResults])
 
@@ -94,7 +83,12 @@ function QuizPage() {
     setIsCorrect(correct)
 
     if (correct) {
-      setScore(score + 1)
+      let points = 100;
+      const penaltySeconds = Math.max(0, 30 - timeLeft - 5);
+      points -= Math.floor(penaltySeconds / 2) * 5;
+      points = Math.max(0, points);
+
+      setScore(prev => prev + points);
     }
 
 
@@ -143,9 +137,19 @@ function QuizPage() {
           })}
         </div>
         
-        <button className="icon-button">
+        <button className="icon-button" onClick={() => {
+          console.log('Hint clicked');
+          setShowHintMessage(true);
+          setTimeout(() => setShowHintMessage(false), 3000)
+        }}>
           <HintIcon/>
         </button>
+        {showHintMessage && (
+        <div className="body-base" style={{ marginTop: "-3rem", color: "#BB342F", textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}>
+          Hint not unlocked yet!
+        </div>
+        )}
+
       </div>
 
     </div>

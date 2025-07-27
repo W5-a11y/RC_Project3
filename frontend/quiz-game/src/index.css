@@ -57,18 +57,21 @@ h2 {
   font-family: 'Lexend', sans-serif;
   font-weight: 500;
   font-size: 28px;
+  color: #432818;
 }
 
 .body-base {
   font-family: 'Lexend', sans-serif;
   font-weight: 400;
   font-size: 24px;
+  color: #432818;
 }
 
 .caption {
   font-family: 'Lexend', sans-serif;
   font-weight: 400;
   font-size: 20px;
+  color: #432818;
 }
 
 a {
@@ -141,7 +144,8 @@ button:focus-visible {
   cursor: pointer;
   color: inherit;
   transition: color 0.2s ease;
-  border-radius: 9999px;
+  border-radius: 8px;
+  user-select: none;
 }
 
 .icon-button:hover {
@@ -149,6 +153,19 @@ button:focus-visible {
   box-shadow: 0 0 15px 5px rgba(220, 157, 85, 0.5);
   transform: scale(1.1);
   color: #432818;
+}
+
+.input-box {
+  padding: 0.5rem 1rem;
+  border-radius: 16px;
+  border: 2px solid #432818;
+  background-color: #fffaf0;
+  color: #432818;
+  font-family: var(--lexend, sans-serif);
+  font-size: 1.2rem;
+  outline: none;
+  width: 250px;
+  margin-top: 1rem;
 }
 
 /* ============================= */
