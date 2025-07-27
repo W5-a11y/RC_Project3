@@ -134,18 +134,22 @@ button:focus-visible {
 }
 
 .icon-button {
-  background: none;
-  border: none;
+  all: unset; 
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   cursor: pointer;
+  color: inherit;
+  transition: color 0.2s ease;
+  border-radius: 9999px;
 }
 
 .icon-button:hover {
   background-color: #bc6c25;
-  box-shadow: 0 0 10px 3px rgba(220, 157, 85, 0.5);
+  box-shadow: 0 0 15px 5px rgba(220, 157, 85, 0.5);
   transform: scale(1.1);
   color: #432818;
 }
-
 
 /* ============================= */
 /*     QUIZ PAGE STRUCTURE       */
