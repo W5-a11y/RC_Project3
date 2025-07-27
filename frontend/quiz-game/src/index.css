@@ -273,6 +273,17 @@ button:focus-visible {
   background-color: #6f1d1b;
 }
 
+.topic-header {
+  font-size: clamp(1rem, 2.5vw, 2rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 2.5rem;
+  line-height: 2.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
 
 /* ============================= */
 /*     ASPECT RATIO LAYOUT       */

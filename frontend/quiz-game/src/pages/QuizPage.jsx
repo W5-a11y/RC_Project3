@@ -109,7 +109,7 @@ function QuizPage() {
 
   return (
     <div className="quiz-container">
-      <h1 className="h2">Topic: {topic}</h1>
+      <h1 className="h2 topic-header">Topic: {topic}</h1>
       <div className="question-box-wrapper">
         <div className="question-box-image">
           <QuestionBox className="question-svg" />
@@ -138,14 +138,13 @@ function QuizPage() {
         </div>
         
         <button className="icon-button" onClick={() => {
-          console.log('Hint clicked');
           setShowHintMessage(true);
           setTimeout(() => setShowHintMessage(false), 3000)
         }}>
           <HintIcon/>
         </button>
         {showHintMessage && (
-        <div className="body-base" style={{ marginTop: "-3rem", color: "#BB342F", textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}>
+        <div className="body-base" style={{ marginTop: "-1rem", color: "#BB342F"}}>
           Hint not unlocked yet!
         </div>
         )}
