@@ -109,7 +109,10 @@ function QuizPage() {
 
   return (
     <div className="quiz-container">
-      <h1 className="h2 topic-header">Topic: {topic}</h1>
+      <div className="topic-header-wrapper">
+        <h1 className="h2 topic-header" title={topic}>Topic: {topic}</h1>
+      </div>
+      
       <div className="question-box-wrapper">
         <div className="question-box-image">
           <QuestionBox className="question-svg" />
