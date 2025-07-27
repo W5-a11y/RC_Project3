@@ -6,9 +6,9 @@ function HomePage() {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div style={{ position: 'relative', minHeight: '100vh' }}>
       {/* Main Centered Content */}
-      <div className="text-center">
+      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', fontSize: '2em'}}>
         <h1>Welcome to the Quiz Game</h1>
         <button onClick={() => navigate('/topics')}>
           Play Game
@@ -16,21 +16,24 @@ function HomePage() {
       </div>
 
       {/* Bottom Buttons with Icons */}
-      <button
-        onClick={() => navigate('/credits')}
-        className="icon-button bottom-left"
-      >
-        <CreditsIcon />
-      </button>
+      <div className="bottom-container">
+        <button
+          onClick={() => navigate('/credits')}
+          className="icon-button"
+        >
+          <CreditsIcon />
+        </button>
 
-      <button
-        onClick={() => navigate('/store')}
-        className="icon-button bottom-right"
-      >
-        <StoreIcon />
-      </button>
+        <button
+          onClick={() => navigate('/store')}
+          className="icon-button"
+        >
+          <StoreIcon />
+        </button>
+      </div>
     </div>
   );
+
 }
 
 export default HomePage;
