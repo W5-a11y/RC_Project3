@@ -132,6 +132,8 @@ def get_region_by_ip(ip):
             return "Hong Kong"
         elif "el" in city or "folsom" in city:
             return "Folsom"
+        elif "merced" in city:
+            return "Merced"
         else:
             return "Other"
     except:

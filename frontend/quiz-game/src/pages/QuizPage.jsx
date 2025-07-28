@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLocation, useNavigate} from 'react-router-dom'
 import QuestionBox from '../assets/QuizContainer.svg?react';
 import HintIcon from '../assets/HintButton.svg?react';
+import FireIcon from '../assets/fire.svg?react'
 import '../index.css'
 
 function QuizPage() {
@@ -12,6 +13,7 @@ function QuizPage() {
   const [eliminatedOptions, setEliminatedOptions] = useState([]) // later for hint
   const [showHintMessage, setShowHintMessage] = useState(false);
   const [score, setScore] = useState(0)
+  const [streak, setStreak] = useState(0) // Initialize streak state
   const [showResults, setShowResults] = useState(false)
   const [clickedIndex, setClickedIndex] = useState(null)
   const [isCorrect, setIsCorrect] = useState(null)
@@ -82,6 +84,8 @@ function QuizPage() {
     setClickedIndex(index)
     setIsCorrect(correct)
 
+    setStreak(prev => correct ? prev + 1 : 0);
+
     if (correct) {
       let points = 100;
       const penaltySeconds = Math.max(0, 30 - timeLeft - 5);
@@ -150,6 +154,12 @@ function QuizPage() {
         <div className="body-base" style={{ marginTop: "-1rem", color: "#BB342F"}}>
           Hint not unlocked yet!
         </div>
+        )}
+        {streak >= 2 && (
+          <div className="body-base streak" style={{ marginTop: '1rem', display: 'flex', alignItems: 'center' }}>
+            <FireIcon className="fire-icon" />
+            <span style={{ marginLeft: '0.5rem' }}>{streak}</span>
+          </div>
         )}
 
       </div>
