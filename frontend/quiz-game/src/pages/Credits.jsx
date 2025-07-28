@@ -9,9 +9,9 @@ function CreditsPage() {
       <p>🎮 Quiz Game created by:</p>
       <ul style={{ listStyle: "none", padding: 0 }}>
         <li>Samantha Siew – UI/UX Developer & Designer</li>
-        <li>Celia Wang – </li>
-        <li>Sarayu Mummidi – </li>
-        <li>Jacob Lawson – </li>
+        <li>Celia Wang – Database & API</li>
+        <li>Sarayu Mummidi – LLM Quiz Generator </li>
+        <li>Jacob Lawson – Gamification</li>
       </ul>
       <button onClick={() => navigate("/")}>← Back to Home</button>
     </div>

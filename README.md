@@ -106,6 +106,7 @@ quiz-app/
 1. **Install Python dependencies**
 ```bash
 pip install -r requirements.txt
-npm install react-custom-roulette --legacy-peer-deps (topic wheel)
+npm install react-custom-roulette --legacy-peer-deps (topic wheel) (only need --legacy-peer-deps if using react ver 19+)
+npm install @fontsource/lexend @fontsource/nunito @fontsource/poppins
 
 ```

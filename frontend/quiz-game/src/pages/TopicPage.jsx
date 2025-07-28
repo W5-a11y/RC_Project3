@@ -23,23 +23,38 @@ function TopicPage() {
   }
 
   const handleStopSpinning = () => {
+    const selectedTopic = data[prizeNumber].option
     setTimeout(() => {
-      navigate('/quiz')
+      navigate('/quiz', { state: { topic: selectedTopic}})
     }, 1000)
   }
 
   return (
-    <div className="topic-page">
+    <div>
       <h1>Choose a Topic</h1>
-      <Wheel
-        mustStartSpinning={mustSpin}
-        prizeNumber={prizeNumber}
-        data={data}
-        onStopSpinning={handleStopSpinning}
-        backgroundColors={['#3e3e3e', '#df3428']}
-        textColors={['#ffffff']}
-      />
-      <button onClick={handleSpinClick}>Spin</button>
+        <div style={{ transform: 'scale(0.95)'}}>
+            <Wheel
+              mustStartSpinning={mustSpin}
+              prizeNumber={prizeNumber}
+              data={data}
+              onStopSpinning={handleStopSpinning}
+              backgroundColors={['#ffe6a7', '#bb9457']}
+              textColors={['#432818']}
+              fontSize={22}
+              outerBorderWidth={3}
+              outerBorderColor='#432818'
+              radiusLineWidth={3}
+              radiusLineColor='#432818'
+              pointerProps={{
+                style: {
+                  fill: '#606c38',
+                },
+              }}
+            />
+        </div>
+      <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '20px'}}>
+        <button onClick={handleSpinClick}>Spin</button>
+      </div>
     </div>
   )
 }
