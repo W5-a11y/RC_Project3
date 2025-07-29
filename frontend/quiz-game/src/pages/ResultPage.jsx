@@ -11,15 +11,14 @@ function ResultPage() {
   const total = location.state?.total ?? 0
   const [copied, setCopied] = useState(false)
 
-  // Inline leaderboard data: either passed via state or fallback mock
-  const leaderboard =
-    location.state?.leaderboard ||
-    [
-      { name: 'Alice', score: 15 },
-      { name: 'Bob', score: 12 },
-      { name: 'Charlie', score: 10 },
-      { name: 'You', score: score },
-    ]
+  // Build a dynamic leaderboard: merge provided entries (or fallbacks) with current user
+  const baseEntries = location.state?.leaderboard || [
+    { name: 'Alice', score: 150 },
+    { name: 'Bob', score: 240 },
+    { name: 'Charlie', score: 380 },
+  ]
+  const fullLeaderboard = [...baseEntries, { name: 'You', score }]
+    .sort((a, b) => b.score - a.score)
 
   const handleShare = () => {
     const text = `I scored ${score} out of ${total}!`
@@ -57,12 +56,12 @@ function ResultPage() {
         Your score is {score} out of {total}
       </h1>
 
-      {/* Leaderboard section with larger size, centered heading, and extra top margin */}
+      {/* Leaderboard section with dynamic sorting */}
       <div
         style={{
-          margin: '4rem auto',       // was '2rem auto'
+          margin: '4rem auto',
           maxWidth: '400px',
-          textAlign: 'center',      // kept center
+          textAlign: 'center',
           fontSize: '1.25rem',
         }}
       >
@@ -70,7 +69,7 @@ function ResultPage() {
           Leaderboard
         </h2>
         <ul className="body-base" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {leaderboard.map((entry, idx) => (
+          {fullLeaderboard.map((entry, idx) => (
             <li
               key={idx}
               className="body-base"
