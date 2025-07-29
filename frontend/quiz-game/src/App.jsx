@@ -6,7 +6,6 @@ import ResultPage from './pages/ResultPage'
 import CreditsPage from './pages/Credits'
 import StorePage from './pages/StorePage'
 import LogInPage from './pages/LogInPage'
-import LeaderboardPage from './pages/LeaderboardPage'
 
 function App() {
   return (
@@ -21,7 +20,6 @@ function App() {
             <Route path="/credits" element={<CreditsPage />} />
             <Route path="/store" element={<StorePage />} />
             <Route path="/login" element={<LogInPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />}/>
           </Routes>
         </Router>
       </div>

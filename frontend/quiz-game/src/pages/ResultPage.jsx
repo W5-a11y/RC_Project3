@@ -10,6 +10,10 @@ function ResultPage() {
   const score = location.state?.score ?? 0
   const total = location.state?.total ?? 0
   const [copied, setCopied] = useState(false)
+  const credits = total > 0
+  ? Math.round(10 + (score / total) * 90)
+  : 10
+
 
   // Build a dynamic leaderboard: merge provided entries (or fallbacks) with current user
   const baseEntries = location.state?.leaderboard || [
@@ -86,6 +90,11 @@ function ResultPage() {
         </ul>
       </div>
 
+      {/* Display earned credits */}
+      <p style={{ fontSize: '1.5rem', marginTop: '2rem'}}>
+        You've earned <strong>{credits}</strong> credits!
+      </p>
+
       {/* Bottom button row */}
       <div
         style={{
@@ -117,7 +126,7 @@ function ResultPage() {
 
         <button onClick={() => navigate('/')}>← Back to Home</button>
 
-        <button onClick={() => navigate('/store')}>Go to Store</button>
+        <button onClick={() => navigate('/store', { state: { credits } })}>Go to Store</button>
       </div>
     </div>
   )
