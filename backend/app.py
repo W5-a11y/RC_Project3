@@ -163,7 +163,7 @@ def submit_user_info():
         return jsonify({"User already exists"}), 400
     db.session.commit()
 
-    return jsonify({"message": "User info stored", "uid": uid}), 200
+    return jsonify({"message": "User info stored", "uid": uid}), 2
     # Update streak and points
     # user.streak += 1
     # user.points += score

@@ -1,5 +1,3 @@
-// 
-
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
@@ -19,7 +17,6 @@ function LogInPage() {
 
       // Save locally
       localStorage.setItem("username", name)
-      localStorage.setItem("userLoggedIn", "true")
       localStorage.setItem("uid", uid)
       localStorage.setItem("region", region)
 
@@ -34,6 +31,7 @@ function LogInPage() {
           uid,
           username: name,
           region,
+          userLoggedIn: true
         })      
         });
         console.log("Response status:", response.status);
@@ -52,24 +50,24 @@ function LogInPage() {
       }
     }
 
-    return (
-      <div style={{ padding: "2rem", textAlign: "center"}}>
-        <h1>Login</h1>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Enter your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="input-box body-base"
-          />
-          <br />
-          <button type="submit" style={{ marginTop: "2rem", padding: "0.5rem 1rem", fontSize: '1.5em' }}>
-            Start Quiz
-          </button>
-        </form>
-      </div>
-    )
-  }
+  return (
+    <div style={{ padding: "2rem", textAlign: "center"}}>
+      <h1>Login</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Enter your name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="input-box body-base"
+        />
+        <br />
+        <button type="submit" style={{ marginTop: "2rem", padding: "0.5rem 1rem", fontSize: '1.5em' }}>
+          Start Quiz
+        </button>
+      </form>
+    </div>
+  )
+}
 
-  export default LogInPage
+export default LogInPage
