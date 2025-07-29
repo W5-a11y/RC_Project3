@@ -57,6 +57,10 @@ function ResultPage() {
         <button onClick={() => navigate('/store')}>
           Go to Store
         </button>
+
+        <button onClick={() => navigate('/leaderboard')}>
+          Check the leaderboard
+        </button>
       </div>
     </div>
   )
