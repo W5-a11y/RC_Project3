@@ -1,32 +1,34 @@
 import os
-import sys
 import requests
 from flask import Flask, jsonify, request, render_template
-from models import db, User, Quiz, ScoreLog
+from models import db, User, Quiz
 from datetime import date
 from quiz_generator.quiz_gen import generate_quiz
 import json
 from dotenv import load_dotenv
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
+from flask_sqlalchemy import SQLAlchemy
 
-load_dotenv()
+
+load_dotenv(dotenv_path=".env")
 app = Flask(__name__)
 CORS(app)
 
-DATABASE_URL = os.getenv("DATABASE_URL") 
+DATABASE_URL =  os.getenv("DATABASE_URL") 
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 db.init_app(app)
 
 
 # Home route -- HTML page index.html
-@app.route("/")
-def index():
-    return render_template("index.html")
+# @app.route("/")
+# def index():
+#     return render_template("index.html")
 
-@app.route("/signup")
-def signup():
-    return render_template("signup.html")
+# @app.route("/login")
+# def signup():
+#     return render_template("signup.html")
 
 @app.route("/store")
 def store():
@@ -84,42 +86,42 @@ def generate_quiz_route():
     return jsonify(quiz_data)
 
 # Path to create or update user information
-@app.route("/submit_user_info", methods=["POST"])
-def submit_user():
-    data = request.json
-    if not data:
-        return jsonify({"error": "No JSON data provided"}), 400
+# @app.route("/submit_user_info", methods=["POST"])
+# def submit_user():
+#     data = request.json
+#     if not data:
+#         return jsonify({"error": "No JSON data provided"}), 400
     
-    uid = data["uid"]
-    name = data.get("name", "Guest") #default
-    ip = request.remote_addr
-    region = get_region_by_ip(ip)
-    today = str(date.today())
+#     uid = data["uid"]
+#     name = data.get("name", "Guest") #default
+#     ip = request.remote_addr
+#     region = get_region_by_ip(ip)
+#     today = str(date.today())
 
-    user = User.query.filter_by(uid=uid).first()
-    if user:   #if user exists, update their information
-        user.last_active = today
-        user.region = region
-    else:
-        user = User()
-        user.uid = uid
-        user.name = name
-        user.region = region
-        user.last_active = today
-        user.points = 0
-        user.streak = 0
-        db.session.add(user)
+#     user = User.query.filter_by(uid=uid).first()
+#     if user:   #if user exists, update their information
+#         user.last_active = today
+#         user.region = region
+#     else:
+#         user = User()
+#         user.uid = uid
+#         user.name = name
+#         user.region = region
+#         user.last_active = today
+#         user.points = 0
+#         user.streak = 0
+#         db.session.add(user)
 
-    db.session.commit()
-    return jsonify({
-        "message": "User information submitted",
-        "uid": user.uid, # Explicitly return the UID
-        "name": user.name,
-        "region": user.region,
-        "last_active": user.last_active,
-        "points": user.points,
-        "streak": user.streak
-    })
+#     db.session.commit()
+#     return jsonify({
+#         "message": "User information submitted",
+#         "uid": user.uid, # Explicitly return the UID
+#         "name": user.name,
+#         "region": user.region,
+#         "last_active": user.last_active,
+#         "points": user.points,
+#         "streak": user.streak
+#     })
 
 def get_region_by_ip(ip):
     ip = requests.get('https://api.ipify.org').text
@@ -139,64 +141,62 @@ def get_region_by_ip(ip):
     except:
         return "Unknown"
     
-@app.route("/update-score", methods=["POST"])
-def submit_score():
+@app.route("/submit_user_info", methods=["POST"])
+@cross_origin()
+def submit_user_info():
     data = request.get_json()
-    if not data:
-        return jsonify({"message": "No JSON data provided"}), 400
+    uid = data["uid"]
+    name = data["username"]
 
-    uid = data.get("uid")
-    score = int(data.get("score", 0)) # Ensure score is an integer
+    ip = request.remote_addr
+    region = get_region_by_ip(ip)
 
     if not uid:
-        return jsonify({"message": "Missing 'uid' in request data"}), 400
+        return jsonify({"error": "UID is required"}), 400
 
+    # Check if user exists
     user = User.query.filter_by(uid=uid).first()
-
     if not user:
-        # If user doesn't exist, you might want to create them or return an error.
-        # Based on your /submit-user_info, users should ideally exist before submitting scores.
-        return jsonify({"message": "User not found."}), 404
-
-    today_str = str(date.today())
-
-    # Check if the user has already played today
-    if user.last_active == today_str: # Assuming last_active tracks last play, not just last login/update
-        return jsonify({"message": "User has already played today. No score update."}), 400
-
-    # Update streak and points
-    user.streak += 1
-    user.points += score
-    user.last_active = today_str # Update last_active to today
-
-    # Add to ScoreLog
-    # ERROR FIX: ScoreLog model has 'time' and 'bonus' which are not in data.
-    # Defaulting them or requiring them. Assuming they are optional for now.
-    log = ScoreLog()
-    log.uid = uid
-    log.score = score
-    log.date = today_str
-    log.time = 0  # Default value
-    log.bonus = 0  # Default value
-    log.streak = user.streak
-    db.session.add(log)
-
+        user = User(uid=uid, name=name, region=region, total_points=0, streak=0)
+        db.session.add(user)
+    else:
+        return jsonify({"User already exists"}), 400
     db.session.commit()
-    return jsonify({
-        "message": "Score submitted successfully.",
-        "uid": uid,
-        "name": user.name,
-        "score": score,
-        "streak": user.streak,
-        "total_points": user.points
-    })
+
+    return jsonify({"message": "User info stored", "uid": uid}), 200
+    # Update streak and points
+    # user.streak += 1
+    # user.points += score
+    # user.last_active = today_str # Update last_active to today
+
+    # # Add to ScoreLog
+    # # ERROR FIX: ScoreLog model has 'time' and 'bonus' which are not in data.
+    # # Defaulting them or requiring them. Assuming they are optional for now.
+    # log = ScoreLog()
+    # log.uid = uid
+    # log.score = score
+    # log.date = today_str
+    # log.time = 0  # Default value
+    # log.bonus = 0  # Default value
+    # log.streak = user.streak
+    # db.session.add(log)
+
+    # db.session.commit()
+    # return jsonify({
+    #     "message": "Score submitted successfully.",
+    #     "uid": uid,
+    #     "name": user.name,
+    #     "score": score,
+    #     "streak": user.streak,
+    #     "total_points": user.points
+    # })
 
 @app.route("/leaderboard")
 def leaderboard(): 
-    leader = User.query.order_by(User.points.desc()).limit(10).all() # Example: top 10 by points
+    leader = User.query.order_by(User.total_points.desc()).limit(10).all() # Example: top 10 by points
     return render_template("leaderboard.html", users=leader)
 
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(debug=True, host="127.0.0.1", port=5050)

@@ -6,7 +6,7 @@ function HomePage() {
   const navigate = useNavigate();
 
   const handlePlayClick = () => {
-    const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true'; // replace later with actual database of logged in users
+    const isLoggedIn = localStorage.getItem('userLoggedIn') === 'false'; // replace later with actual database of logged in users
     if (isLoggedIn) {
       navigate('/topics');
     } else {

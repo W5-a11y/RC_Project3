@@ -17,12 +17,10 @@ class Quiz(db.Model):
     questions = db.Column(db.PickleType)
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    uid = db.Column(db.String(100), primary_key=True)
-    name = db.Column(db.String(100))
-    region = db.Column(db.String(50))
-    last_active = db.Column(db.String(100))
-    points = db.Column(db.Integer, default=0)
+    uid = db.Column(db.String, primary_key=True)
+    name = db.Column(db.String)
+    region = db.Column(db.String)
+    total_points = db.Column(db.Integer, default=0)
     streak = db.Column(db.Integer, default=0)
 
 class ScoreLog(db.Model):
