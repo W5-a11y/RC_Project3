@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "@fontsource/lexend": "^5.2.9",
+    "@fontsource/nunito": "^5.2.6",
+    "@fontsource/poppins": "^5.2.6",
     "react-custom-roulette": "^1.4.1"
   }
 }

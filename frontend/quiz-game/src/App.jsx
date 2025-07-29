@@ -9,7 +9,7 @@ import LogInPage from './pages/LogInPage'
 
 function App() {
   return (
-    <div className="aspect-wrapper" >
+    <div className="aspect-wrapper">
       <div className="aspect-box">
         <Router>
           <Routes>

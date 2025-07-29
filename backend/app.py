@@ -13,10 +13,15 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-DATABASE_URL = os.getenv("DATABASE_URL") 
+# Use a unique file-based database to avoid conflicts
+DATABASE_URL = os.getenv("DATABASE_URL")
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
+
+# Create all database tables
+with app.app_context():
+    db.create_all()
 
 
 # Home route -- HTML page index.html
@@ -83,43 +88,153 @@ def generate_quiz_route():
         return jsonify({"error": quiz_data["error"]}), quiz_data.get("status", 500)
     return jsonify(quiz_data)
 
+@app.route("/check-user", methods=["GET"])
+def check_user():
+    uid = request.args.get("uid")
+    if not uid:
+        return jsonify({"error": "Missing uid parameter"}), 400
+    
+    try:
+        user = User.query.filter_by(uid=uid).first()
+        if user:
+            return jsonify({
+                "uid": user.uid,
+                "name": user.name,
+                "region": user.region,
+                "last_active": user.last_active,
+                "points": user.points,
+                "streak": user.streak
+            })
+        else:
+            return jsonify({"error": "User not found"}), 404
+    except Exception as e:
+        print(f"Error checking user: {e}")
+        return jsonify({"error": "Database error"}), 500
+
+@app.route("/test-quiz-completion", methods=["GET"])
+def test_quiz_completion():
+    """Test endpoint to verify quiz completion check works"""
+    uid = request.args.get("uid", "test_user")
+    today = str(date.today())
+    
+    # Simulate checking if user completed today's quiz
+    # In a real scenario, this would check the ScoreLog table
+    return jsonify({
+        "uid": uid,
+        "date": today,
+        "completed": False,  # Simulate not completed
+        "message": "Test endpoint - user has not completed today's quiz"
+    })
+
+@app.route("/user-stats", methods=["GET"])
+def get_user_stats():
+    uid = request.args.get("uid")
+    if not uid:
+        return jsonify({"error": "Missing uid parameter"}), 400
+    
+    try:
+        # Get user info
+        user = User.query.filter_by(uid=uid).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Get user's quiz history (all score logs)
+        score_logs = ScoreLog.query.filter_by(uid=uid).order_by(ScoreLog.date.desc()).all()
+        
+        # Format the quiz history
+        quiz_history = []
+        for log in score_logs:
+            quiz_history.append({
+                "date": log.date,
+                "score": log.score,
+                "streak": log.streak,
+                "time": log.time,
+                "bonus": log.bonus
+            })
+        
+        return jsonify({
+            "user": {
+                "name": user.name,
+                "total_points": user.points,
+                "current_streak": user.streak,
+                "region": user.region,
+                "last_active": user.last_active
+            },
+            "quiz_history": quiz_history,
+            "total_quizzes": len(quiz_history),
+            "average_score": sum(log.score for log in score_logs) / len(score_logs) if score_logs else 0
+        })
+    except Exception as e:
+        print(f"Error getting user stats: {e}")
+        return jsonify({"error": "Database error"}), 500
+
+@app.route("/check-today-quiz", methods=["GET"])
+def check_today_quiz():
+    uid = request.args.get("uid")
+    if not uid:
+        return jsonify({"error": "Missing uid parameter"}), 400
+    
+    try:
+        today = str(date.today())
+        # Check if user has a score log for today
+        score_log = ScoreLog.query.filter_by(uid=uid, date=today).first()
+        
+        if score_log:
+            return jsonify({
+                "completed": True,
+                "score": score_log.score,
+                "date": score_log.date
+            })
+        else:
+            return jsonify({
+                "completed": False
+            })
+    except Exception as e:
+        print(f"Error checking today's quiz: {e}")
+        return jsonify({"error": "Database error"}), 500
+
 # Path to create or update user information
 @app.route("/submit_user_info", methods=["POST"])
 def submit_user():
-    data = request.json
-    if not data:
-        return jsonify({"error": "No JSON data provided"}), 400
-    
-    uid = data["uid"]
-    name = data.get("name", "Guest") #default
-    ip = request.remote_addr
-    region = get_region_by_ip(ip)
-    today = str(date.today())
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "No JSON data provided"}), 400
+        
+        uid = data["uid"]
+        name = data.get("name", "Guest") #default
+        ip = request.remote_addr
+        region = get_region_by_ip(ip)
+        today = str(date.today())
 
-    user = User.query.filter_by(uid=uid).first()
-    if user:   #if user exists, update their information
-        user.last_active = today
-        user.region = region
-    else:
-        user = User()
-        user.uid = uid
-        user.name = name
-        user.region = region
-        user.last_active = today
-        user.points = 0
-        user.streak = 0
-        db.session.add(user)
+        user = User.query.filter_by(uid=uid).first()
+        if user:   #if user exists, update their information
+            user.last_active = today
+            user.region = region
+        else:
+            user = User()
+            user.uid = uid
+            user.name = name
+            user.region = region
+            user.last_active = today
+            user.points = 0
+            user.streak = 0
+            db.session.add(user)
 
-    db.session.commit()
-    return jsonify({
-        "message": "User information submitted",
-        "uid": user.uid, # Explicitly return the UID
-        "name": user.name,
-        "region": user.region,
-        "last_active": user.last_active,
-        "points": user.points,
-        "streak": user.streak
-    })
+        db.session.commit()
+        return jsonify({
+            "message": "User information submitted",
+            "uid": user.uid, # Explicitly return the UID
+            "name": user.name,
+            "region": user.region,
+            "last_active": user.last_active,
+            "points": user.points,
+            "streak": user.streak
+        })
+    except Exception as e:
+        print(f"Error in submit_user: {e}")
+        db.session.rollback()
+        return jsonify({"error": f"Failed to create user: {str(e)}"}), 500
 
 def get_region_by_ip(ip):
     ip = requests.get('https://api.ipify.org').text
@@ -160,9 +275,10 @@ def submit_score():
 
     today_str = str(date.today())
 
-    # Check if the user has already played today
-    if user.last_active == today_str: # Assuming last_active tracks last play, not just last login/update
-        return jsonify({"message": "User has already played today. No score update."}), 400
+    # Check if the user has already completed today's quiz
+    existing_score = ScoreLog.query.filter_by(uid=uid, date=today_str).first()
+    if existing_score:
+        return jsonify({"message": "User has already completed today's quiz."}), 400
 
     # Update streak and points
     user.streak += 1
@@ -170,8 +286,6 @@ def submit_score():
     user.last_active = today_str # Update last_active to today
 
     # Add to ScoreLog
-    # ERROR FIX: ScoreLog model has 'time' and 'bonus' which are not in data.
-    # Defaulting them or requiring them. Assuming they are optional for now.
     log = ScoreLog()
     log.uid = uid
     log.score = score

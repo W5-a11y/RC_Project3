@@ -18,7 +18,7 @@ class Quiz(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    uid = db.Column(db.String(100), primary_key=True)
+    uid = db.Column(db.String(100), unique=True, nullable=False)
     name = db.Column(db.String(100))
     region = db.Column(db.String(50))
     last_active = db.Column(db.String(100))
