@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Wheel } from 'react-custom-roulette'
+import spinningSound from '../assets/wheel-noise.mp3'
 
 // Spinner wheel topics
 const data = [
@@ -18,9 +19,13 @@ function TopicPage() {
   const navigate = useNavigate()
   const [lockedPrizeIndex, setLockedPrizeIndex] = useState(null)
   const [loading, setLoading] = useState(true)
+  const spinAudio = new Audio(spinningSound)
 
 
   const handleSpinClick = () => {
+    spinAudio.currentTime = 0
+    spinAudio.play()
+    
     const newPrizeNumber = lockedPrizeIndex !== null
       ? lockedPrizeIndex
       : Math.floor(Math.random() * data.length)

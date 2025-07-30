@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate} from 'react-router-dom'
-import QuestionBox from '../assets/QuizContainer.svg?react';
-import HintIcon from '../assets/HintButton.svg?react';
+import QuestionBox from '../assets/QuizContainer.svg?react'
+import HintIcon from '../assets/HintButton.svg?react'
 import FireIcon from '../assets/fire.svg?react'
+import correctSound from '../assets/correct.mp3'
+import incorectSound from '../assets/incorrect.mp3'
 import '../index.css'
 
 function QuizPage() {
@@ -11,7 +13,7 @@ function QuizPage() {
   const [questions, setQuestions] = useState([])
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [eliminatedOptions, setEliminatedOptions] = useState([]) // later for hint
-  const [showHintMessage, setShowHintMessage] = useState(false);
+  const [showHintMessage, setShowHintMessage] = useState(false)
   const [score, setScore] = useState(0)
   const [streak, setStreak] = useState(0) // Initialize streak state
   const [showResults, setShowResults] = useState(false)
@@ -19,12 +21,14 @@ function QuizPage() {
   const [isCorrect, setIsCorrect] = useState(null)
   const location = useLocation()
   const topic = location.state?.topic || 'Default'
+  const correctAudio = new Audio(correctSound)
+  const incorrectAudio = new Audio(incorectSound)
 
   // get the quiz questions from backend
   useEffect(() => {
     async function fetchQuiz() {
       try {
-        const res = await fetch(`http://127.0.0.1:5000/today-quiz?topic=${topic}`);
+        const res = await fetch(`http://127.0.0.1:5000/today-quiz?topic=${topic}`)
         const data = await res.json()
         if (data.questions) {
           // Normalize questions to match expected format
@@ -84,15 +88,25 @@ function QuizPage() {
     setClickedIndex(index)
     setIsCorrect(correct)
 
-    setStreak(prev => correct ? prev + 1 : 0);
+    setStreak(prev => correct ? prev + 1 : 0)
 
     if (correct) {
-      let points = 100;
-      const penaltySeconds = Math.max(0, 30 - timeLeft - 5);
-      points -= Math.floor(penaltySeconds / 2) * 5;
-      points = Math.max(0, points);
+      // play correct audio
+      correctAudio.currentTime = 0
+      correctAudio.play()
 
-      setScore(prev => prev + points);
+      // calculate score based on time left
+      // 100 points to start and reduce 5 every 2 seconds
+      let points = 100
+      const penaltySeconds = Math.max(0, 30 - timeLeft - 5)
+      points -= Math.floor(penaltySeconds / 2) * 5
+      points = Math.max(0, points)
+
+      setScore(prev => prev + points)
+    } else {
+      // play incorrect audio
+      incorrectAudio.currentTime = 0
+      incorrectAudio.play()
     }
 
 
@@ -108,7 +122,7 @@ function QuizPage() {
     }, 800)
   }
 
-  if (!questions.length) return <div>Loading quiz...</div>
+  if (!questions.length) return <div className='body-base'>Loading quiz...</div>
   const question = questions[currentQuestion] || {}
 
   return (
@@ -145,7 +159,7 @@ function QuizPage() {
         </div>
         
         <button className="icon-button" onClick={() => {
-          setShowHintMessage(true);
+          setShowHintMessage(true)
           setTimeout(() => setShowHintMessage(false), 3000)
         }}>
           <HintIcon/>

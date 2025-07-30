@@ -48,9 +48,9 @@ function StorePage() {
 
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1 className="h2 topic-header">Store</h1>
+      <h1>Store</h1>
       <p className="body-base">
-        You have <strong>{Credits}</strong> Credits
+        Credits: <strong>{Credits}</strong>
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '2rem' }}>
@@ -59,22 +59,14 @@ function StorePage() {
           const canAfford = Credits >= item.cost
 
           return (
-            <div key={item.id} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '1rem' }}>
-              <h2 className="h2 topic-header" style={{ fontSize: '1.25rem' }}>{item.name}</h2>
-              <p className="body-base">{item.description}</p>
-              <p className="body-base">Cost: {item.cost} credits</p>
+            <div key={item.id} style={{ border: '2px solid #dda15e', borderRadius: '8px', padding: '1rem' }}>
+              <h2 style={{ fontSize: '1.5rem' }}>{item.name}</h2>
+              <p className="caption">{item.description}</p>
+              <p className="caption">Cost: {item.cost} credits</p>
               <button
                 onClick={() => handlePurchase(item)}
                 disabled={!canAfford || isUnlocked}
-                style={{
-                  marginTop: '0.5rem',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '4px',
-                  backgroundColor: isUnlocked ? '#aaa' : canAfford ? '#28a745' : '#ccc',
-                  color: '#fff',
-                  border: 'none',
-                  cursor: canAfford && !isUnlocked ? 'pointer' : 'not-allowed',
-                }}
+                className={`buy-button ${isUnlocked ? 'unlocked' : !canAfford ? 'disabled' : ''}`}
               >
                 {isUnlocked ? 'Unlocked' : canAfford ? 'Buy' : 'Too Expensive'}
               </button>

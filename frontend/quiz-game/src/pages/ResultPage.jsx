@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import ShareButtonIcon from '../assets/ShareButton.svg?react'
+import StoreIcon from '../assets/store.svg?react'
 import '../index.css'
 
 function ResultPage() {
@@ -83,7 +84,7 @@ function ResultPage() {
     if (navigator.clipboard) {
       navigator.clipboard
         .writeText(text)
-        .then(() => setCopied(true))
+        .then(() => {setCopied(true), setTimeout(() => setCopied(false), 1500)})
         .catch(err => console.error('Copy failed', err))
     } else {
       const textarea = document.createElement('textarea')
@@ -91,8 +92,7 @@ function ResultPage() {
       document.body.appendChild(textarea)
       textarea.select()
       try {
-        document.execCommand('copy')
-        setCopied(true)
+        alert('Clipboard API not supported. Please copy manually: ' + text)
       } catch (err) {
         console.error('Copy failed', err)
       }
@@ -118,35 +118,35 @@ function ResultPage() {
         textAlign: 'center',
       }}
     >
-      <h1 className="h2 topic-header">
-        Your score is {score} out of {total}
+      <h1 className="h2" style={{ marginTop: '1rem' , fontSize: '40px'}}>
+        Score: {score}/{total}
       </h1>
 
       {alreadyPlayed ? (
-        <h3 style={{ color: '#432818' }}>
+        <h3 className="caption" style={{ marginTop: '1rem', marginBottom: '-3rem' }}>
           You've already completed today's quiz! Come back tomorrow for a new challenge.
         </h3>
       ) : (
         scoreSubmitted && (
-          <p style={{ color: 'green', marginTop: '1rem' }}>
+          <p style={{ color: '#606c38', marginTop: '1rem' }}>
             Score saved to your profile!
           </p>
         )
       )}
 
       {/* Leaderboard */}
-      <div style={{ margin: '4rem auto', maxWidth: '400px', fontSize: '1.25rem' }}>
-        <h2 className="h2 topic-header" style={{ marginBottom: '1rem' }}>Leaderboard</h2>
-        <ul className="body-base" style={{ listStyle: 'none', padding: 0 }}>
+      <div style={{ margin: '4rem auto .5rem auto', maxWidth: '400px', fontSize: '1.25rem' }}>
+        <h2 style={{ marginBottom: '1rem', marginTop: '-1rem', fontSize: '35px'}}>Leaderboard</h2>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
           {fullLeaderboard.map((entry, idx) => (
             <li
               key={idx}
               className="body-base"
               style={{
-                padding: '0.75rem 1rem',
-                background: entry.name === 'You' ? '#f0e68c' : 'transparent',
+                padding: '0.5rem 1rem',
+                background: entry.name === 'You' ? 'rgba(96, 108, 56, 0.6)' : 'transparent',
                 borderRadius: '0.25rem',
-                marginBottom: '0.75rem',
+                marginBottom: '0.5rem',
               }}
             >
               {idx + 1}. {entry.name} — {entry.score}
@@ -156,9 +156,10 @@ function ResultPage() {
       </div>
 
       {/* Credits */}
-      <p style={{ fontSize: '1.5rem', marginTop: '2rem' }}>
+      <p className="body-base" style={{ marginTop: '.25rem' }}>
         You've earned <strong>{credits}</strong> credits!
       </p>
+
 
       {/* Bottom buttons */}
       <div
@@ -174,17 +175,36 @@ function ResultPage() {
           fontSize: '1rem',
         }}
       >
-        <button
-          onClick={handleShare}
-          style={{ padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}
-        >
-          <ShareButtonIcon style={{ width: '1.5em', height: '1.5em', marginRight: '0.5em' }} />
-          {copied ? 'Copied!' : 'Share'}
-        </button>
+        <div style={{ position: 'relative' }}>
+          {copied && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '-1.5rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: '#606c38',
+                color: 'white',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '8px',
+                fontSize: '0.75rem',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Copied!
+            </div>
+          )}
+          <button onClick={handleShare} className="icon-button" title="Share">
+            <ShareButtonIcon />
+          </button>
+        </div>
 
         <button onClick={() => navigate('/')}>← Back to Home</button>
 
-        <button onClick={() => navigate('/store', { state: { credits } })}>Go to Store</button>
+        <button onClick={() => navigate('/store', { state: { credits } })} className="icon-button">
+          <StoreIcon />
+        </button>
+
       </div>
     </div>
   )
