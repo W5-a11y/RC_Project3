@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Wheel } from 'react-custom-roulette'
 
+// Spinner wheel topics
 const data = [
   { option: 'Entertainment' },
   { option: 'Science' },
@@ -15,9 +16,14 @@ function TopicPage() {
   const [mustSpin, setMustSpin] = useState(false)
   const [prizeNumber, setPrizeNumber] = useState(0)
   const navigate = useNavigate()
+  const [lockedPrizeIndex, setLockedPrizeIndex] = useState(null)
+  const [loading, setLoading] = useState(true)
+
 
   const handleSpinClick = () => {
-    const newPrizeNumber = Math.floor(Math.random() * data.length)
+    const newPrizeNumber = lockedPrizeIndex !== null
+      ? lockedPrizeIndex
+      : Math.floor(Math.random() * data.length)
     setPrizeNumber(newPrizeNumber)
     setMustSpin(true)
   }
@@ -28,6 +34,31 @@ function TopicPage() {
       navigate('/quiz', { state: { topic: selectedTopic}})
     }, 1000)
   }
+
+  // Check if exsiting quiz from the user's location and lock the wheel to that topic
+  useEffect(() => {
+    const checkExistingQuiz = async() => {
+      try {
+        const response = await fetch('http://localhost:5000/today-quiz')
+        if (!response.ok) {
+          throw new Error('Failed to fetch quiz')
+        }
+        const dataFromBackend = await response.json()
+        // If quiz exists for that location then lock the topic to spin
+        if (dataFromBackend.topic) {
+          const index = data.findIndex(item => item.option === dataFromBackend.topic)
+          if (index !== -1) {
+            setLockedPrizeIndex(index)
+          }
+        }
+      } catch (error) {
+        console.error('Error checking for existing quiz:', error)
+      } finally {
+        setLoading(false)
+      }
+    } 
+    checkExistingQuiz()
+  }, [])
 
   return (
     <div>
@@ -50,10 +81,11 @@ function TopicPage() {
                   fill: '#606c38',
                 },
               }}
+              spinDuration={0.5}
             />
         </div>
       <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '20px'}}>
-        <button onClick={handleSpinClick}>Spin</button>
+        <button onClick={handleSpinClick} disabled={loading}>{loading ? 'Loading...' : 'Spin'}</button>
       </div>
     </div>
   )
