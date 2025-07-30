@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import '../index.css'
 
 // Sample unlockable items (replace or extend as needed)
 const STORE_ITEMS = [
@@ -31,21 +32,26 @@ const STORE_ITEMS = [
 
 function StorePage() {
   const navigate = useNavigate()
-  const [Credits, setCredits] = useState(100) // Example starting Credits; replace with real user data
+  const location = useLocation()
+  // Use credits passed from ResultPage, or default to 0
+  const initialCredits = location.state?.credits ?? 0
+  const [Credits, setCredits] = useState(initialCredits)
   const [unlocked, setUnlocked] = useState([])
 
   const handlePurchase = (item) => {
     if (Credits >= item.cost && !unlocked.includes(item.id)) {
-      setCredits(Credits - item.cost)
-      setUnlocked([...unlocked, item.id])
+      setCredits(prev => prev - item.cost)
+      setUnlocked(prev => [...prev, item.id])
       // TODO: Persist purchase to backend or global state
     }
   }
 
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Store</h1>
-      <p>You have <strong>{Credits}</strong> Credits</p>
+      <h1 className="h2 topic-header">Store</h1>
+      <p className="body-base">
+        You have <strong>{Credits}</strong> Credits
+      </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '2rem' }}>
         {STORE_ITEMS.map((item) => {
@@ -54,9 +60,9 @@ function StorePage() {
 
           return (
             <div key={item.id} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '1rem' }}>
-              <h2>{item.name}</h2>
-              <p>{item.description}</p>
-              <p>Cost: {item.cost} credits</p>
+              <h2 className="h2 topic-header" style={{ fontSize: '1.25rem' }}>{item.name}</h2>
+              <p className="body-base">{item.description}</p>
+              <p className="body-base">Cost: {item.cost} credits</p>
               <button
                 onClick={() => handlePurchase(item)}
                 disabled={!canAfford || isUnlocked}
@@ -84,4 +90,4 @@ function StorePage() {
   )
 }
 
-export default StorePage;
+export default StorePage
