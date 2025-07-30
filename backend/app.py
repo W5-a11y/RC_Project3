@@ -208,7 +208,21 @@ def submit_user():
         today = str(date.today())
 
         user = User.query.filter_by(uid=uid).first()
+        if not user:
+            # Check if a user with the same name already exists
+            existing_user = User.query.filter_by(name=name).first()
+            if existing_user:
+                # Merge duplicate users by combining their points
+                existing_user.points += getattr(existing_user, 'credits', 0)  # Add any credits as points
+                existing_user.last_active = today
+                existing_user.region = region
+                db.session.commit()
+                user = existing_user
+            else:
+                user = None
+        
         if user:   #if user exists, update their information
+            user.uid = uid  # Update UID if it changed
             user.last_active = today
             user.region = region
         else:
@@ -305,10 +319,29 @@ def submit_score():
         "total_points": user.points
     })
 
-@app.route("/leaderboard")
-def leaderboard(): 
-    leader = User.query.order_by(User.points.desc()).limit(10).all() # Example: top 10 by points
-    return render_template("leaderboard.html", users=leader)
+@app.route("/api/leaderboard", methods=["GET"])
+def get_leaderboard():
+    try:
+        # Get top 5 users by total points
+        leaderboard = User.query.order_by(User.points.desc()).limit(5).all()
+        
+        # Format the leaderboard data
+        leaderboard_data = []
+        for user in leaderboard:
+            leaderboard_data.append({
+                "name": user.name,
+                "points": user.points,
+                "streak": user.streak,
+                "region": user.region
+            })
+        
+        return jsonify({
+            "leaderboard": leaderboard_data
+        })
+    except Exception as e:
+        print(f"Error getting leaderboard: {e}")
+        return jsonify({"error": "Database error"}), 500
+
 
 if __name__ == "__main__":
     with app.app_context():

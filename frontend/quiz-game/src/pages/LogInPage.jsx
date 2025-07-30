@@ -11,10 +11,8 @@ function LogInPage() {
     if (name.trim()) {
       setIsLoading(true)
       try {
-        // Generate a unique UID for the user
-        const userUID = `user_${Date.now()}_${Math.random()
-          .toString(36)
-          .substr(2, 9)}`
+        // Generate a unique UID based on the user's name
+        const userUID = `user_${name.trim().toLowerCase().replace(/\s+/g, '_')}`
 
         // Submit user info to backend
         const response = await fetch('http://127.0.0.1:5000/submit_user_info', {
