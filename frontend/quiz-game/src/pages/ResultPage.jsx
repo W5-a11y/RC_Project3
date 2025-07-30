@@ -14,22 +14,28 @@ function ResultPage() {
   const [alreadyPlayed, setAlreadyPlayed] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  // Fetch user stats if no score data is available (redirected from homepage)
+  // Calculate credits
+  const credits = total > 0 ? Math.round(10 + (score / total) * 90) : 10
+
+  // Leaderboard
+  const baseEntries = location.state?.leaderboard || [
+    { name: 'Alice', score: 150 },
+    { name: 'Bob', score: 240 },
+    { name: 'Charlie', score: 380 },
+  ]
+  const fullLeaderboard = [...baseEntries, { name: 'You', score }].sort((a, b) => b.score - a.score)
+
   useEffect(() => {
     const fetchUserStats = async () => {
       const userUID = localStorage.getItem('userUID')
       if (!userUID || (score === 0 && total === 0)) {
         setLoading(true)
         try {
-          const response = await fetch(
-            `http://127.0.0.1:5000/user-stats?uid=${userUID}`
-          )
+          const response = await fetch(`http://127.0.0.1:5000/user-stats?uid=${userUID}`)
           if (response.ok) {
             const data = await response.json()
-            // Get the most recent quiz score
             if (data.quiz_history && data.quiz_history.length > 0) {
               const latestQuiz = data.quiz_history[0]
-              // Update the score and total for display
               location.state = { score: latestQuiz.score, total: 500 }
               setAlreadyPlayed(true)
             }
@@ -41,11 +47,9 @@ function ResultPage() {
         }
       }
     }
-
     fetchUserStats()
   }, [score, total, location])
 
-  // Submit score to backend when component loads
   useEffect(() => {
     const submitScore = async () => {
       const userUID = localStorage.getItem('userUID')
@@ -54,15 +58,11 @@ function ResultPage() {
           const response = await fetch('http://127.0.0.1:5000/update-score', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              uid: userUID,
-              score: score,
-            }),
+            body: JSON.stringify({ uid: userUID, score }),
           })
 
           if (response.ok) {
             const result = await response.json()
-            // Update localStorage with new user data
             localStorage.setItem('userPoints', result.total_points)
             localStorage.setItem('userStreak', result.streak)
             setScoreSubmitted(true)
@@ -75,38 +75,17 @@ function ResultPage() {
         }
       }
     }
-
     submitScore()
   }, [score, scoreSubmitted])
-  const credits = total > 0
-  ? Math.round(10 + (score / total) * 90)
-  : 10
-
-
-  // Build a dynamic leaderboard: merge provided entries (or fallbacks) with current user
-  const baseEntries = location.state?.leaderboard || [
-    { name: 'Alice', score: 150 },
-    { name: 'Bob', score: 240 },
-    { name: 'Charlie', score: 380 },
-  ]
-  const fullLeaderboard = [...baseEntries, { name: 'You', score }]
-    .sort((a, b) => b.score - a.score)
 
   const handleShare = () => {
-    const text = `I scored ${score} out of ${total}!`
     const text = `I scored ${score} out of ${total}!`
     if (navigator.clipboard) {
       navigator.clipboard
         .writeText(text)
-      navigator.clipboard
-        .writeText(text)
         .then(() => setCopied(true))
-        .catch((err) => console.error('Copy failed', err))
+        .catch(err => console.error('Copy failed', err))
     } else {
-      const textarea = document.createElement('textarea')
-      textarea.value = text
-      document.body.appendChild(textarea)
-      textarea.select()
       const textarea = document.createElement('textarea')
       textarea.value = text
       document.body.appendChild(textarea)
@@ -114,13 +93,9 @@ function ResultPage() {
       try {
         document.execCommand('copy')
         setCopied(true)
-        document.execCommand('copy')
-        setCopied(true)
       } catch (err) {
         console.error('Copy failed', err)
-        console.error('Copy failed', err)
       }
-      document.body.removeChild(textarea)
       document.body.removeChild(textarea)
     }
   }
@@ -134,42 +109,35 @@ function ResultPage() {
   }
 
   return (
-    <div
-      className="quiz-container"
+    <div className="quiz-container"
       style={{
-       
         position: 'relative',
-       
         height: '100vh',
-       
         padding: '2rem',
-       
         boxSizing: 'border-box',
-       
         textAlign: 'center',
-     ,
       }}
-    
     >
       <h1 className="h2 topic-header">
-        
-        {'Your score is'} {score} out of {total}
-      
+        Your score is {score} out of {total}
       </h1>
 
-      {/* Leaderboard section with dynamic sorting */}
-      <div
-        style={{
-          margin: '4rem auto',
-          maxWidth: '400px',
-          textAlign: 'center',
-          fontSize: '1.25rem',
-        }}
-      >
-        <h2 className="h2 topic-header" style={{ marginBottom: '1rem' }}>
-          Leaderboard
-        </h2>
-        <ul className="body-base" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+      {alreadyPlayed ? (
+        <h3 style={{ color: '#432818' }}>
+          You've already completed today's quiz! Come back tomorrow for a new challenge.
+        </h3>
+      ) : (
+        scoreSubmitted && (
+          <p style={{ color: 'green', marginTop: '1rem' }}>
+            Score saved to your profile!
+          </p>
+        )
+      )}
+
+      {/* Leaderboard */}
+      <div style={{ margin: '4rem auto', maxWidth: '400px', fontSize: '1.25rem' }}>
+        <h2 className="h2 topic-header" style={{ marginBottom: '1rem' }}>Leaderboard</h2>
+        <ul className="body-base" style={{ listStyle: 'none', padding: 0 }}>
           {fullLeaderboard.map((entry, idx) => (
             <li
               key={idx}
@@ -187,71 +155,36 @@ function ResultPage() {
         </ul>
       </div>
 
-      {/* Display earned credits */}
-      <p style={{ fontSize: '1.5rem', marginTop: '2rem'}}>
+      {/* Credits */}
+      <p style={{ fontSize: '1.5rem', marginTop: '2rem' }}>
         You've earned <strong>{credits}</strong> credits!
       </p>
 
-      {alreadyPlayed ? (
-        <h3 style={{ color: '#432818' }}>
-          {' '}
-          You've already completed today's quiz! Come back tomorrow for a new
-          challenge.{' '}
-        </h3>
-      ) : (
-        scoreSubmitted && (
-          <p style={{ color: 'green', marginTop: '1rem' }}>
-            Score saved to your profile!
-          </p>
-        )
-      )}
-
-      {/* Bottom button row */}
+      {/* Bottom buttons */}
       <div
-       
         style={{
-         
           position: 'absolute',
-         
           bottom: '2rem',
-         
           left: 0,
-         
           right: 0,
-         
           display: 'flex',
-         
           alignItems: 'center',
-         
           justifyContent: 'space-between',
-         
           padding: '0 2rem',
-       ,
           fontSize: '1rem',
         }}
-      
       >
         <button
           onClick={handleShare}
-          style={{
-            padding: '0.5rem 1rem',
-            display: 'inline-flex',
-            alignItems: 'center',
-            cursor: 'pointer',
-          }}
+          style={{ padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}
         >
-          <ShareButtonIcon
-           
-            style={{ width: '1.5em', height: '1.5em', marginRight: '0.5em' }}
-         
-          />
+          <ShareButtonIcon style={{ width: '1.5em', height: '1.5em', marginRight: '0.5em' }} />
           {copied ? 'Copied!' : 'Share'}
         </button>
 
         <button onClick={() => navigate('/')}>← Back to Home</button>
-        <button onClick={() => navigate('/')}>← Back to Home</button>
 
-        <button onClick={() => navigate('/store')}>Go to Store</button>
+        <button onClick={() => navigate('/store', { state: { credits } })}>Go to Store</button>
       </div>
     </div>
   )
