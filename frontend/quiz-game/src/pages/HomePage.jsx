@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import StoreIcon from '../assets/store.svg?react'
 import CreditsIcon from '../assets/credits.svg?react'
+import Logo from '../assets/logo1.png'
 
 function HomePage() {
   const navigate = useNavigate()
@@ -93,10 +94,37 @@ function HomePage() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          fontSize: '2em',
         }}
       >
-        <h1>Welcome to the Quiz Game</h1>
+        {/* Header with Logo and Title */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: '0.5rem',
+            justifyContent: 'center',
+          }}
+        >
+          <img
+            src={Logo}
+            alt="Quizzle Logo"
+            style={{
+              width: '200px',
+              height: '200px',
+              objectFit: 'contain',
+            }}
+          />
+          <h1
+            style={{
+              margin: 0,
+              fontSize: '48px',
+              fontFamily: 'Poppins, sans-serif',
+              fontWeight: '700',
+            }}
+          >
+            Quizzle
+          </h1>
+        </div>
         <div
           style={{
             display: 'flex',
