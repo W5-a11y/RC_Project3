@@ -142,8 +142,10 @@ Global styles and reusable classes (e.g., .icon-button) are defined in src/index
 ```
 frontend/src/pages/
 ├── HomePage.jsx        # Landing screen with Play, Credits, and Store
+├── LogInPage.jsx       # Log In for new users
 ├── TopicPage.jsx       # Spin-the-wheel category selector
 ├── QuizPage.jsx        # Displays 5 questions with audio and transitions
 ├── ResultPage.jsx      # Score summary, leaderboard, streaks, and sharing
+├── StorePage.jsx       # Game customization and achievement badges
 ├── Credits.jsx         # Acknowledgments and info
 ```
