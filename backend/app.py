@@ -21,6 +21,7 @@ db.init_app(app)
 
 # Create all database tables
 with app.app_context():
+    db.drop_all()
     db.create_all()
 
 
@@ -62,6 +63,7 @@ def get_today_quiz():
         if "error" in quiz_data:
             return jsonify({"error": quiz_data["error"]}), quiz_data.get("status", 500)
         return quiz_data
+    
 
 def generate_and_store_quiz(topic, location):
     quiz_data = generate_quiz(topic, location)
@@ -77,16 +79,6 @@ def generate_and_store_quiz(topic, location):
     db.session.commit()
     return quiz_data
 
-@app.route("/generate-quiz", methods=["GET"])
-def generate_quiz_route():
-    topic = request.args.get("topic")
-    if not topic:
-        return jsonify({"error": "Missing topic parameter"}), 400
-    location = get_region_by_ip(request.remote_addr)
-    quiz_data = generate_and_store_quiz(topic, location)
-    if "error" in quiz_data:
-        return jsonify({"error": quiz_data["error"]}), quiz_data.get("status", 500)
-    return jsonify(quiz_data)
 
 @app.route("/check-user", methods=["GET"])
 def check_user():
@@ -168,8 +160,28 @@ def get_user_stats():
         print(f"Error getting user stats: {e}")
         return jsonify({"error": "Database error"}), 500
 
-@app.route("/check-today-quiz", methods=["GET"])
+@app.route("/check-quiz", methods=["GET"])
 def check_today_quiz():
+    today = str(date.today())
+    location = get_region_by_ip(request.remote_addr)
+    if location == "Unknown" or location == "Other":
+        return jsonify({"error": "Unknown location"}), 400
+    quiz = Quiz.query.filter_by(date=today, location=location).first()
+    if quiz:
+        return jsonify({
+            "date": quiz.date,
+            "location": location,
+            "topic": quiz.topic,
+            "questions": json.loads(quiz.questions)
+        })
+    else:
+        return jsonify({
+            "quiz": False
+        })
+
+
+@app.route("/check-today-quiz", methods=["GET"])
+def check_quiz_completion():
     uid = request.args.get("uid")
     if not uid:
         return jsonify({"error": "Missing uid parameter"}), 400

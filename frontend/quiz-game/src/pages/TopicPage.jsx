@@ -44,14 +44,16 @@ function TopicPage() {
   useEffect(() => {
     const checkExistingQuiz = async() => {
       try {
-        const response = await fetch('http://localhost:5000/today-quiz')
+        const response = await fetch('http://localhost:5000/check-today-quiz')
         if (!response.ok) {
           throw new Error('Failed to fetch quiz')
         }
         const dataFromBackend = await response.json()
-        console.log("Fetched quiz data:", dataFromBackend)
+        if (!dataFromBackend.quiz) {
+          setLockedPrizeIndex(null)
+        }
         // If quiz exists for that location then lock the topic to spin
-        if (dataFromBackend.topic) {
+        else if (dataFromBackend.topic) {
           const index = data.findIndex(item => item.option === dataFromBackend.topic)
           if (index !== -1) {
             setLockedPrizeIndex(index)
