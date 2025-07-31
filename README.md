@@ -17,19 +17,15 @@ quiz-app/
 │   ├── script.js
 │   └── assets/               # Icons, fonts, badges
 │
-├── quiz_gen/                # LLM-based trivia generator
-│   ├── generate_quiz.py
-│   ├── topics.txt
-│   ├── questions.json        # Output format
-│   └── utils.py
-│
 ├── backend/                 # API + Firestore logic
 │   ├── app.py
 │   ├── firestore_db.py
 │   └── api_routes/           # API route handlers
 │       ├── quiz.py           # Endpoints like /quiz/today and /quiz/submit
 │       ├── leaderboard.py    # Endpoints like /leaderboard
-│       └── user.py           # Endpoints like /user/streak
+│       └── user.py      # Endpoints like /user/streak
+│   ├── quiz_gen/                # LLM-based trivia generator
+│       ├── generate_quiz.py
 │
 ├── shared/                   # Shared formats, mock data
 │   ├── quiz_schema.json
@@ -41,65 +37,70 @@ quiz-app/
 ```
 ---
 
-## 🔗 API Endpoints
+# 📚 Quiz App API Documentation
 
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `GET`  | `/quiz/today` | Fetch today’s quiz |
-| `POST` | `/quiz/submit` | Submit answers and get result |
-| `GET`  | `/leaderboard` | Fetch top player scores |
-| `GET`  | `/user/streak` | Get current streak and badge info |
+This Flask-based API powers a location-aware, daily quiz app that tracks user progress, scores, and streaks.
 
 ---
 
-### 📄 Quiz JSON Schema (`shared/quiz_schema.json`)
-- Not Needed -- May Delete Later
-```json
-{
-  "type": "object",
-  "required": ["date", "topic", "questions"],
-  "properties": {
-    "date": {
-      "type": "string",
-      "format": "date"
-    },
-    "topic": {
-      "type": "string"
-    },
-    "questions": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["q", "options", "answer"],
-        "properties": {
-          "q": { "type": "string" },
-          "options": {
-            "type": "array",
-            "items": { "type": "string" },
-            "minItems": 4,
-            "maxItems": 4
-          },
-          "answer": { "type": "string" }
-        }
-      }
-    }
-  }
-}
+## 🔗 API Endpoints
+
+### 📅 Daily Quiz
+
+| Method | Endpoint              | Description                                                                 |
+|--------|-----------------------|-----------------------------------------------------------------------------|
+| GET    | `/today-quiz`         | Fetch today’s quiz based on user location. Optional `topic` query param.   |
+| GET    | `/check-today-quiz`   | Check if the user has completed today's quiz. Requires `uid` as a query param. |
+| GET    | `/check-quiz`         | Check if a quiz exists for today at the user's location.                   |
+| GET    | `/test-quiz-completion` | Simulated quiz completion response for testing.                            |
+
+---
+
+### 👤 User
+
+| Method | Endpoint              | Description                                                                 |
+|--------|-----------------------|-----------------------------------------------------------------------------|
+| GET    | `/check-user`         | Fetch user profile by `uid`.                                               |
+| GET    | `/user-stats`         | Get user's quiz history, current streak, and average score. Requires `uid`.|
+| POST   | `/submit_user_info`   | Create or update a user with `uid` and optional `name`. Region is IP-based.|
+
+---
+
+### 📝 Quiz Submission
+
+| Method | Endpoint              | Description                                                                 |
+|--------|-----------------------|-----------------------------------------------------------------------------|
+| POST   | `/update-score`       | Submit quiz score. Requires `uid` and `score`. Updates streak, points, and logs result. |
+
+---
+
+### 🏆 Leaderboard
+
+| Method | Endpoint              | Description                                                                 |
+|--------|-----------------------|-----------------------------------------------------------------------------|
+| GET    | `/api/leaderboard`    | Returns the top 5 users by total points.                                   |
+
+---
+
+## 🌐 Frontend Routes (HTML Pages)
+
+| Route         | Purpose                          |
+|---------------|----------------------------------|
+| `/`           | Homepage                         |
+| `/signup`     | Sign-up page                     |
+| `/store`      | Store / rewards page             |
+| `/end_stats`  | End-of-quiz stats summary page   |
+
+---
+
+## 🌍 Region Detection
+
+Location is determined via IP address using the [ipinfo.io](https://ipinfo.io/) API:
+
+```python
+response = requests.get(f"https://ipinfo.io/{ip}/json")
 ```
-### 📄 Test JSON Data (`shared/quiz_schema.json`)
-```json
-{
-  "date": "2025-07-17",
-  "topic": "Coffee",
-  "questions": [
-    {
-      "q": "Which country consumes the most coffee?",
-      "options": ["USA", "Finland", "Italy", "Brazil"],
-      "answer": "Finland"
-    }
-  ]
-}
-```
+
 ---
 ## Setup Instructions 
 
@@ -149,3 +150,60 @@ frontend/src/pages/
 ├── StorePage.jsx       # Game customization and achievement badges
 ├── Credits.jsx         # Acknowledgments and info
 ```
+
+## 🛠️ Running & Testing the App
+
+### Backend (Flask)
+- Install dependencies:
+  pip install -r requirements.txt
+
+- Create a `.env` file with:
+  DATABASE_URL=sqlite:///quiz.db (Insert your own DATABASE URL here)
+
+- Run the Flask server:
+  cd backend
+  python app.py
+
+  The backend will be running at http://127.0.0.1:5000
+
+### Frontend (React with Vite)
+- Install dependencies:
+  cd frontend
+  npm install
+
+- Start the development server:
+  npm run dev
+
+  The frontend will be running at http://localhost:5173
+
+### Testing
+- Test endpoints with Postman, curl, or browser:
+  - GET http://127.0.0.1:5000/today-quiz
+  - POST http://127.0.0.1:5000/submit_user_info
+  - GET http://127.0.0.1:5000/api/leaderboard
+
+Make sure both frontend and backend are running before testing!
+
+## Tech Stack
+
+### Backend
+- **Python** — Core programming language
+- **Flask** — Lightweight web framework for API development
+- **Gemini LLM** — Language model used for generating trivia questions dynamically
+- **SQLAlchemy** — ORM for database interactions
+- **SQLite** (or configurable via `DATABASE_URL`) — Database for storing users, quizzes, and scores
+- **Requests** — For IP-based region detection via external APIs
+- **Flask-CORS** — Enable Cross-Origin Resource Sharing between frontend and backend
+
+### Frontend
+- **React** (with Vite) — Frontend UI framework and build tool
+- **React Router DOM** — Client-side routing for multi-page experience
+- **React Custom Roulette** — For category/topic wheel component
+- **@fontsource** — Self-hosted fonts for typography (Poppins, Nunito, Lexend)
+- **Tailwind CSS** or **Custom CSS** — Styling (adjust based on what you actually use)
+
+### Dev & Tools
+- **Python dotenv** — Manage environment variables securely
+- **Postman / curl** — API testing
+- **Node.js & npm** — Package management for frontend dependencies
+- **Git** — Version control
