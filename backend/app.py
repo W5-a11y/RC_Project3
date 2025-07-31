@@ -1,5 +1,4 @@
 import os
-import sys
 import requests
 from flask import Flask, jsonify, request, render_template
 from models import db, User, Quiz, ScoreLog
@@ -249,7 +248,9 @@ def get_region_by_ip(ip):
             return "Folsom"
         elif "merced" in city:
             return "Merced"
-        else:
+        elif "san jose" in city:
+            return "San Jose"
+        else: 
             return "Other"
     except:
         return "Unknown"
