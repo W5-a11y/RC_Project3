@@ -110,3 +110,40 @@ npm install react-custom-roulette --legacy-peer-deps (topic wheel) (only need --
 npm install @fontsource/lexend @fontsource/nunito @fontsource/poppins
 
 ```
+
+## Frontend Setup (React)
+
+The frontend is built using React (Vite) with custom styling, animations, and sound. Follow the instructions below to get it running locally.
+
+### Install Dependencies
+
+From the `frontend/` directory:
+
+```bash
+cd frontend
+npm install
+npm install react-custom-roulette --legacy-peer-deps (topic wheel) (only need --legacy-peer-deps if using react ver 19+)
+npm install @fontsource/lexend @fontsource/nunito @fontsource/poppins
+npm install react-router-dom   
+```
+
+### Typography and Styling
+Fonts are imported locally using @fontsource. The app uses:
+
+Poppins – For headers (h1, h2)
+
+Nunito – For quiz questions
+
+Lexend – For body and caption text
+
+Global styles and reusable classes (e.g., .icon-button) are defined in src/index.css.
+
+### Page Structure
+```
+frontend/src/pages/
+├── HomePage.jsx        # Landing screen with Play, Credits, and Store
+├── TopicPage.jsx       # Spin-the-wheel category selector
+├── QuizPage.jsx        # Displays 5 questions with audio and transitions
+├── ResultPage.jsx      # Score summary, leaderboard, streaks, and sharing
+├── Credits.jsx         # Acknowledgments and info
+```
