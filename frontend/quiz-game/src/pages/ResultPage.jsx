@@ -17,6 +17,7 @@ function ResultPage() {
   const [leaderboard, setLeaderboard] = useState([])
   const [leaderboardLoading, setLeaderboardLoading] = useState(false)
   const [leaderboardUpdating, setLeaderboardUpdating] = useState(false)
+  const [hasSubmitted, setHasSubmitted] = useState(false)
 
   // Calculate credits for display (but use backend value for actual credits)
   const credits = total > 0 ? Math.round(10 + (score / total) * 90) : 10
@@ -118,7 +119,8 @@ function ResultPage() {
             }
             setLeaderboardUpdating(false)
           } else {
-            console.error('Failed to submit score')
+            const error = await response.json().catch(() => ({}))
+            console.log('Server rejected score submission:', error)
           }
         } catch (error) {
           console.error('Error submitting score:', error)
