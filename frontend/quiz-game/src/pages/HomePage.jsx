@@ -98,12 +98,7 @@ function HomePage() {
       >
         {/* Header with Logo and Title */}
         <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '0.5rem',
-            justifyContent: 'center',
-          }}
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
         >
           <img
             src={Logo}
@@ -114,14 +109,7 @@ function HomePage() {
               objectFit: 'contain',
             }}
           />
-          <h1
-            style={{
-              margin: 0,
-              fontSize: '48px',
-              fontFamily: 'Poppins, sans-serif',
-              fontWeight: '700',
-            }}
-          >
+          <h1 className='h1' style={{marginTop: '-2rem'}}>
             Quizzle
           </h1>
         </div>
@@ -136,7 +124,7 @@ function HomePage() {
             marginTop: '-1em',
           }}
         >
-          <div className="body-base">
+          <div className="caption">
             <p>
               Spin the wheel to decide the topic of today's 5 questions. <br />
               Each question must be answered correctly within 30 seconds. <br />
@@ -146,7 +134,13 @@ function HomePage() {
           </div>
         </div>
 
-        <button onClick={handlePlayClick}>Play Game</button>
+        <button 
+          onClick={handlePlayClick}
+          className='button'
+          style={{
+            fontSize: '24px'
+          }}
+        >Play Game</button>
       </div>
 
       {/* Bottom Buttons with Icons */}
