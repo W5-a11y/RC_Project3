@@ -25,7 +25,7 @@ function TopicPage() {
   const handleSpinClick = () => {
     spinAudio.currentTime = 0
     spinAudio.play()
-    
+
     const newPrizeNumber = lockedPrizeIndex !== null
       ? lockedPrizeIndex
       : Math.floor(Math.random() * data.length)
@@ -49,11 +49,13 @@ function TopicPage() {
           throw new Error('Failed to fetch quiz')
         }
         const dataFromBackend = await response.json()
+        console.log("Fetched quiz data:", dataFromBackend)
         // If quiz exists for that location then lock the topic to spin
         if (dataFromBackend.topic) {
           const index = data.findIndex(item => item.option === dataFromBackend.topic)
           if (index !== -1) {
             setLockedPrizeIndex(index)
+            console.log("Locked topic:", dataFromBackend.topic)
           }
         }
       } catch (error) {
