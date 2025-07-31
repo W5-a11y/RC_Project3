@@ -1,5 +1,4 @@
 import os
-import sys
 import requests
 from flask import Flask, jsonify, request, render_template
 from models import db, User, Quiz, ScoreLog
@@ -14,10 +13,13 @@ app = Flask(__name__)
 CORS(app)
 
 # Use a unique file-based database to avoid conflicts
-#DATABASE_URL = os.getenv("DATABASE_URL")
-DATABASE_URL = "sqlite:///quiz.db"
+DATABASE_URL = os.getenv("DATABASE_URL")
+# DATABASE_URL = "sqlite:///quiz.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_pre_ping": True
+}
 db.init_app(app)
 
 # Create all database tables
@@ -63,7 +65,6 @@ def get_today_quiz():
         if "error" in quiz_data:
             return jsonify({"error": quiz_data["error"]}), quiz_data.get("status", 500)
         return quiz_data
-    
 
 def generate_and_store_quiz(topic, location):
     quiz_data = generate_quiz(topic, location)
@@ -78,7 +79,6 @@ def generate_and_store_quiz(topic, location):
     db.session.add(quiz)
     db.session.commit()
     return quiz_data
-
 
 @app.route("/check-user", methods=["GET"])
 def check_user():
@@ -204,7 +204,7 @@ def check_quiz_completion():
     except Exception as e:
         print(f"Error checking today's quiz: {e}")
         return jsonify({"error": "Database error"}), 500
-
+    
 # Path to create or update user information
 @app.route("/submit_user_info", methods=["POST"])
 def submit_user():
@@ -275,7 +275,9 @@ def get_region_by_ip(ip):
             return "Folsom"
         elif "merced" in city:
             return "Merced"
-        else:
+        elif "san jose" in city:
+            return "San Jose"
+        else: 
             return "Other"
     except:
         return "Unknown"
