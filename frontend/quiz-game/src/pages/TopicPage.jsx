@@ -43,12 +43,18 @@ function TopicPage() {
   // Check if exsiting quiz from the user's location and lock the wheel to that topic
   useEffect(() => {
     const checkExistingQuiz = async() => {
+      const userUID = localStorage.getItem('userUID')
+      if (!userUID) {
+        console.warn('No userUID in localStorage')
+        return
+      }
       try {
-        const response = await fetch('http://localhost:5000/check-quiz')
+        const response = await fetch('http://localhost:5000/check-today-quiz?uid=${userUID}')
         if (!response.ok) {
           throw new Error('Failed to fetch quiz')
         }
         const dataFromBackend = await response.json()
+        console.log('quiz data:', dataFromBackend.topic)
         if (!dataFromBackend.quiz) {
           setLockedPrizeIndex(null)
         }
