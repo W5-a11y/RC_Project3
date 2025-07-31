@@ -14,7 +14,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Use a unique file-based database to avoid conflicts
-DATABASE_URL = os.getenv("DATABASE_URL")
+#DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = "sqlite:///quiz.db"
 app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)

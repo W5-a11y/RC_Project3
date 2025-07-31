@@ -44,7 +44,7 @@ function TopicPage() {
   useEffect(() => {
     const checkExistingQuiz = async() => {
       try {
-        const response = await fetch('http://localhost:5000/check-today-quiz')
+        const response = await fetch('http://localhost:5000/check-quiz')
         if (!response.ok) {
           throw new Error('Failed to fetch quiz')
         }
