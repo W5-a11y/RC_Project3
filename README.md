@@ -105,6 +105,7 @@ mysql -h database-1.c36awkaocf5l.us-east-2.rds.amazonaws.com -u admin -p
    SHOW TABLES;
    DESCRIBE user;
    SELECT * FROM user;
+   DELETE FROM user WHERE uid='uid';
    ```
 
 ## 🔗 API Endpoints

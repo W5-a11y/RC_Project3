@@ -17,13 +17,13 @@ def generate_quiz(topic, location):
         Generate 5 trivia questions about {topic}. 
         Each question should have 4 answer choices with only 1 correct answer from the options. All the questions should be related to the topic.
         It doesn't have to be specific to {location} but it needs to be common knowledge for the residents of {location}. For example, if the location is California and topic is history, the question can be about the state, the country, or world history taught by schools in California.
-        All questions should be easy and basic enough for 10-15 year olds to answer. 
+        All questions should be easy and basic enough for 10-15 year olds to answer. Make sure the answer choices are in different positions in the array.
         Output format:
         [
         {{
             "question": "What is the capital of United States?",
             "options": ["Los Angeles", "New York City", "Chicago", "Washington D.C."],
-            "answer": "Sacramento"
+            "answer": "Washington D.C."
         }},
         ...
         ]

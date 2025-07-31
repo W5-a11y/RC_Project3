@@ -16,6 +16,7 @@ function ResultPage() {
   const [loading, setLoading] = useState(false)
   const [leaderboard, setLeaderboard] = useState([])
   const [leaderboardLoading, setLeaderboardLoading] = useState(false)
+  const [leaderboardUpdating, setLeaderboardUpdating] = useState(false)
 
   // Calculate credits for display (but use backend value for actual credits)
   const credits = total > 0 ? Math.round(10 + (score / total) * 90) : 10
@@ -48,12 +49,18 @@ function ResultPage() {
     (entry) => entry.name === currentUser
   )
 
-  const fullLeaderboard =
+  // Create local leaderboard with current user's score
+  const localLeaderboard =
     score > 0 && !userAlreadyInLeaderboard
       ? [...leaderboard, { name: currentUser || 'You', points: score }]
           .sort((a, b) => b.points - a.points)
           .slice(0, 5)
       : leaderboard.slice(0, 5)
+
+  // Use local leaderboard initially, then switch to backend data when available
+  const fullLeaderboard = scoreSubmitted
+    ? leaderboard.slice(0, 5)
+    : localLeaderboard
 
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -99,6 +106,17 @@ function ResultPage() {
             localStorage.setItem('userStreak', result.streak)
             setScoreSubmitted(true)
             console.log('Score submitted successfully:', result)
+
+            // Update leaderboard with backend data
+            setLeaderboardUpdating(true)
+            const leaderboardResponse = await fetch(
+              'http://127.0.0.1:5000/api/leaderboard'
+            )
+            if (leaderboardResponse.ok) {
+              const leaderboardData = await leaderboardResponse.json()
+              setLeaderboard(leaderboardData.leaderboard || [])
+            }
+            setLeaderboardUpdating(false)
           } else {
             console.error('Failed to submit score')
           }
@@ -184,10 +202,15 @@ function ResultPage() {
           style={{ marginBottom: '1rem', marginTop: '-1rem', fontSize: '35px' }}
         >
           Leaderboard
+          {!scoreSubmitted && score > 0 }
         </h2>
         {leaderboardLoading ? (
           <p style={{ textAlign: 'center', color: '#666' }}>
             Loading leaderboard...
+          </p>
+        ) : leaderboardUpdating ? (
+          <p style={{ textAlign: 'center', color: '#666' }}>
+            Updating leaderboard...
           </p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0 }}>
