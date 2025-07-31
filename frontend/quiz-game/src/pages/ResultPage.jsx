@@ -14,17 +14,46 @@ function ResultPage() {
   const [scoreSubmitted, setScoreSubmitted] = useState(false)
   const [alreadyPlayed, setAlreadyPlayed] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [leaderboard, setLeaderboard] = useState([])
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false)
 
-  // Calculate credits
+  // Calculate credits for display (but use backend value for actual credits)
   const credits = total > 0 ? Math.round(10 + (score / total) * 90) : 10
 
-  // Leaderboard
-  const baseEntries = location.state?.leaderboard || [
-    { name: 'Alice', score: 150 },
-    { name: 'Bob', score: 240 },
-    { name: 'Charlie', score: 380 },
-  ]
-  const fullLeaderboard = [...baseEntries, { name: 'You', score }].sort((a, b) => b.score - a.score)
+  // Fetch leaderboard data from backend
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      setLeaderboardLoading(true)
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/leaderboard')
+        if (response.ok) {
+          const data = await response.json()
+          setLeaderboard(data.leaderboard || [])
+        } else {
+          console.error('Failed to fetch leaderboard')
+        }
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error)
+      } finally {
+        setLeaderboardLoading(false)
+      }
+    }
+
+    fetchLeaderboard()
+  }, [])
+
+  // Add current user to leaderboard if they have a score and aren't already in it
+  const currentUser = localStorage.getItem('userName')
+  const userAlreadyInLeaderboard = leaderboard.some(
+    (entry) => entry.name === currentUser
+  )
+
+  const fullLeaderboard =
+    score > 0 && !userAlreadyInLeaderboard
+      ? [...leaderboard, { name: currentUser || 'You', points: score }]
+          .sort((a, b) => b.points - a.points)
+          .slice(0, 5)
+      : leaderboard.slice(0, 5)
 
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -32,7 +61,9 @@ function ResultPage() {
       if (!userUID || (score === 0 && total === 0)) {
         setLoading(true)
         try {
-          const response = await fetch(`http://127.0.0.1:5000/user-stats?uid=${userUID}`)
+          const response = await fetch(
+            `http://127.0.0.1:5000/user-stats?uid=${userUID}`
+          )
           if (response.ok) {
             const data = await response.json()
             if (data.quiz_history && data.quiz_history.length > 0) {
@@ -84,8 +115,10 @@ function ResultPage() {
     if (navigator.clipboard) {
       navigator.clipboard
         .writeText(text)
-        .then(() => {setCopied(true), setTimeout(() => setCopied(false), 1500)})
-        .catch(err => console.error('Copy failed', err))
+        .then(() => {
+          setCopied(true), setTimeout(() => setCopied(false), 1500)
+        })
+        .catch((err) => console.error('Copy failed', err))
     } else {
       const textarea = document.createElement('textarea')
       textarea.value = text
@@ -109,7 +142,8 @@ function ResultPage() {
   }
 
   return (
-    <div className="quiz-container"
+    <div
+      className="quiz-container"
       style={{
         position: 'relative',
         height: '100vh',
@@ -118,13 +152,17 @@ function ResultPage() {
         textAlign: 'center',
       }}
     >
-      <h1 className="h2" style={{ marginTop: '1rem' , fontSize: '40px'}}>
+      <h1 className="h2" style={{ marginTop: '1rem', fontSize: '40px' }}>
         Score: {score}/{total}
       </h1>
 
       {alreadyPlayed ? (
-        <h3 className="caption" style={{ marginTop: '1rem', marginBottom: '-3rem' }}>
-          You've already completed today's quiz! Come back tomorrow for a new challenge.
+        <h3
+          className="caption"
+          style={{ marginTop: '1rem', marginBottom: '-3rem' }}
+        >
+          You've already completed today's quiz! Come back tomorrow for a new
+          challenge.
         </h3>
       ) : (
         scoreSubmitted && (
@@ -135,31 +173,49 @@ function ResultPage() {
       )}
 
       {/* Leaderboard */}
-      <div style={{ margin: '4rem auto .5rem auto', maxWidth: '400px', fontSize: '1.25rem' }}>
-        <h2 style={{ marginBottom: '1rem', marginTop: '-1rem', fontSize: '35px'}}>Leaderboard</h2>
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {fullLeaderboard.map((entry, idx) => (
-            <li
-              key={idx}
-              className="body-base"
-              style={{
-                padding: '0.5rem 1rem',
-                background: entry.name === 'You' ? 'rgba(96, 108, 56, 0.6)' : 'transparent',
-                borderRadius: '0.25rem',
-                marginBottom: '0.5rem',
-              }}
-            >
-              {idx + 1}. {entry.name} — {entry.score}
-            </li>
-          ))}
-        </ul>
+      <div
+        style={{
+          margin: '4rem auto .5rem auto',
+          maxWidth: '400px',
+          fontSize: '1.25rem',
+        }}
+      >
+        <h2
+          style={{ marginBottom: '1rem', marginTop: '-1rem', fontSize: '35px' }}
+        >
+          Leaderboard
+        </h2>
+        {leaderboardLoading ? (
+          <p style={{ textAlign: 'center', color: '#666' }}>
+            Loading leaderboard...
+          </p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {fullLeaderboard.map((entry, idx) => (
+              <li
+                key={idx}
+                className="body-base"
+                style={{
+                  padding: '0.5rem 1rem',
+                  background:
+                    entry.name === currentUser
+                      ? 'rgba(96, 108, 56, 0.6)'
+                      : 'transparent',
+                  borderRadius: '0.25rem',
+                  marginBottom: '0.5rem',
+                }}
+              >
+                {idx + 1}. {entry.name} — {entry.points}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Credits */}
       <p className="body-base" style={{ marginTop: '.25rem' }}>
         You've earned <strong>{credits}</strong> credits!
       </p>
-
 
       {/* Bottom buttons */}
       <div
@@ -201,10 +257,12 @@ function ResultPage() {
 
         <button onClick={() => navigate('/')}>← Back to Home</button>
 
-        <button onClick={() => navigate('/store', { state: { credits } })} className="icon-button">
+        <button
+          onClick={() => navigate('/store', { state: { credits } })}
+          className="icon-button"
+        >
           <StoreIcon />
         </button>
-
       </div>
     </div>
   )

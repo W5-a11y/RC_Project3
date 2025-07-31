@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import StoreIcon from '../assets/store.svg?react'
 import CreditsIcon from '../assets/credits.svg?react'
+import Logo from '../assets/logo1.png'
 
 function HomePage() {
   const navigate = useNavigate()
@@ -93,10 +94,25 @@ function HomePage() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          fontSize: '2em',
         }}
       >
-        <h1>Welcome to the Quiz Game</h1>
+        {/* Header with Logo and Title */}
+        <div
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+        >
+          <img
+            src={Logo}
+            alt="Quizzle Logo"
+            style={{
+              width: '200px',
+              height: '200px',
+              objectFit: 'contain',
+            }}
+          />
+          <h1 className='h1' style={{marginTop: '-2rem'}}>
+            Quizzle
+          </h1>
+        </div>
         <div
           style={{
             display: 'flex',
@@ -108,7 +124,7 @@ function HomePage() {
             marginTop: '-1em',
           }}
         >
-          <div className="body-base">
+          <div className="caption">
             <p>
               Spin the wheel to decide the topic of today's 5 questions. <br />
               Each question must be answered correctly within 30 seconds. <br />
@@ -118,7 +134,13 @@ function HomePage() {
           </div>
         </div>
 
-        <button onClick={handlePlayClick}>Play Game</button>
+        <button 
+          onClick={handlePlayClick}
+          className='button'
+          style={{
+            fontSize: '24px'
+          }}
+        >Play Game</button>
       </div>
 
       {/* Bottom Buttons with Icons */}
