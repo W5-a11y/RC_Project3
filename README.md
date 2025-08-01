@@ -29,7 +29,7 @@ Welcome to **Quizzly**, a fun and fast-paced trivia game designed for web browse
 |------------------|-------------------------------|-------------------------------------------------|
 | Frontend     | React + Vite                   | Build interactive, maintainable UI with client-side routing             |
 | Backend  | Python, Flask, SQLAlchemy,       | Serve API endpoints, manage database interactions, handle CORS)  |
-| Database     | Configurable viaDATABASE_URL (e.g., PostgreSQL, SQLite)  | Store user profiles, quiz questions, scores, and logs    |
+| Database     | Configurable via DATABASE_URL (e.g., PostgreSQL, SQLite)  | Store user profiles, quiz questions, scores, and logs    |
 | Quiz Generation  | Google Generative AI (Gemini 2.5)               | Parse text and transform to JSON               |
 
 ## 🗂️ Project Structure
@@ -108,19 +108,107 @@ mysql -h database-1.c36awkaocf5l.us-east-2.rds.amazonaws.com -u admin -p
    DELETE FROM user WHERE uid='uid';
    ```
 
+
+## 🛠️ Running & Testing the App
+
+### Backend (Flask)
+- Install dependencies:
+  pip install -r requirements.txt
+
+- Create a `.env` file with:
+  DATABASE_URL=sqlite:///quiz.db
+
+- Run the Flask server:
+  cd backend
+  python app.py
+
+  The backend will be running at http://127.0.0.1:5000
+
+### Frontend (React with Vite)
+- Install dependencies:
+  cd frontend
+  npm install
+
+- Start the development server:
+  npm run dev
+
+  The frontend will be running at http://localhost:5173
+
+### Testing
+- Test endpoints with Postman, curl, or browser:
+  - GET http://127.0.0.1:5000/today-quiz
+  - POST http://127.0.0.1:5000/submit_user_info
+  - GET http://127.0.0.1:5000/api/leaderboard
+
+Make sure both frontend and backend are running before testing.
+
+
+# 📚 Quiz App API Documentation
+
+This Flask-based API powers a location-aware, daily quiz app that tracks user progress, scores, and streaks.
+
+---
+
 ## 🔗 API Endpoints
 
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `GET`  | `today-quiz?topic=<topic>` | Fetch today’s quiz for given topic and region |
-| `GET`  |`/generate-quiz?topic=<topic>`|Force generate a new quiz.|
-| `POST` | `/submit_user_info` | Submit answers and get result |
-| `GET`  | `/update-score` | Submit score; updates user points, streak, and logs play. |
-| `GET`  | `GET /leaderboard` | Render top users by points.|
+## 📅 Daily Quiz
+
+| Method | Endpoint              | Description                                                                 |
+|--------|-----------------------|-----------------------------------------------------------------------------|
+| GET    | `/today-quiz`         | Fetch today’s quiz based on user location. Optional `topic` query param.   |
+| GET    | `/check-today-quiz`   | Check if the user has completed today's quiz. Requires `uid` as a query param. |
+| GET    | `/check-quiz`         | Check if a quiz exists for today at the user's location.                   |
+| GET    | `/test-quiz-completion` | Simulated quiz completion response for testing.                            |
+
+---
+
+## 👤 User
+
+| Method | Endpoint              | Description                                                                 |
+|--------|-----------------------|-----------------------------------------------------------------------------|
+| GET    | `/check-user`         | Fetch user profile by `uid`.                                               |
+| GET    | `/user-stats`         | Get user's quiz history, current streak, and average score. Requires `uid`.|
+| POST   | `/submit_user_info`   | Create or update a user with `uid` and optional `name`. Region is IP-based.|
+
+---
+
+## 📝 Quiz Submission
+
+| Method | Endpoint              | Description                                                                 |
+|--------|-----------------------|-----------------------------------------------------------------------------|
+| POST   | `/update-score`       | Submit quiz score. Requires `uid` and `score`. Updates streak, points, and logs result. |
+
+---
+
+## 🏆 Leaderboard
+
+| Method | Endpoint              | Description                                                                 |
+|--------|-----------------------|-----------------------------------------------------------------------------|
+| GET    | `/api/leaderboard`    | Returns the top 5 users by total points.                                   |
+
+---
+
+## 🌐 Frontend Routes (HTML Pages)
+
+| Route         | Purpose                          |
+|---------------|----------------------------------|
+| `/`           | Homepage                         |
+| `/signup`     | Sign-up page                     |
+| `/store`      | Store / rewards page             |
+| `/end_stats`  | End-of-quiz stats summary page   |
+
+---
+
+## 🌍 Region Detection
+
+Location is determined via IP address using the [ipinfo.io](https://ipinfo.io/) API:
+
+```python
+response = requests.get(f"https://ipinfo.io/{ip}/json")
+```
 
 
-
-### Quiz JSON Schema (`shared/quiz_schema.json`)
+## Quiz JSON Schema (`shared/quiz_schema.json`)
 ```json
 [
   {
@@ -174,9 +262,10 @@ mysql -h database-1.c36awkaocf5l.us-east-2.rds.amazonaws.com -u admin -p
     "answer": "Colorado River"
   }
 ]
-
+```
 ---
-### Typography and Styling
+
+## Typography and Styling
 Fonts are imported locally using @fontsource. The app uses:
 
 Poppins – For headers (h1, h2)
