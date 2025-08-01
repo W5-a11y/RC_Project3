@@ -97,9 +97,9 @@ function ResultPage() {
           const response = await fetch('http://127.0.0.1:5000/update-score', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ uid: userUID, score }),
+            body: JSON.stringify({ uid: userUID, score: score }),
           })
-
+          console.log("Submitting score:", { uid: userUID, score })
           if (response.ok) {
             const result = await response.json()
             localStorage.setItem('userPoints', result.total_points)
@@ -118,7 +118,8 @@ function ResultPage() {
             }
             setLeaderboardUpdating(false)
           } else {
-            console.error('Failed to submit score')
+            const error = await response.json().catch(() => ({}))
+            console.log('Server rejected score submission:', error)
           }
         } catch (error) {
           console.error('Error submitting score:', error)

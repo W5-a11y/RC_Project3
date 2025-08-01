@@ -306,7 +306,14 @@ def submit_score():
     # Check if the user has already completed today's quiz
     existing_score = ScoreLog.query.filter_by(uid=uid, date=today_str).first()
     if existing_score:
-        return jsonify({"message": "User has already completed today's quiz."}), 400
+        return jsonify({
+            "message": "Score already submitted. Ignoring duplicate.",
+            "uid": uid,
+            "name": user.name,
+            "score": existing_score.score,
+            "streak": user.streak,
+            "total_points": user.points
+        })
 
     # Update streak and points
     user.streak += 1
