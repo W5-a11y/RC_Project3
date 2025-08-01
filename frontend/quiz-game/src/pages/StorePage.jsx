@@ -59,14 +59,26 @@ function StorePage() {
           const canAfford = Credits >= item.cost
 
           return (
-            <div key={item.id} style={{ border: '2px solid #dda15e', borderRadius: '8px', padding: '1rem' }}>
-              <h2 style={{ fontSize: '1.5rem' }}>{item.name}</h2>
-              <p className="caption">{item.description}</p>
+            <div 
+              key={item.id} 
+              style={{ 
+                border: '2px solid #dda15e', 
+                borderRadius: '8px', 
+                padding: '.5rem',
+                minHeight: ' 240px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between' 
+              }}
+            >
+              <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem'}}>{item.name}</h2>
+              <p className="caption" style={{fontSize: '1.1rem', marginTop: '-.5rem', marginBottom: '.25rem'}}>{item.description}</p>
               <p className="caption">Cost: {item.cost} credits</p>
               <button
                 onClick={() => handlePurchase(item)}
                 disabled={!canAfford || isUnlocked}
                 className={`buy-button ${isUnlocked ? 'unlocked' : !canAfford ? 'disabled' : ''}`}
+                style={{marginBottom: '1rem'}}
               >
                 {isUnlocked ? 'Unlocked' : canAfford ? 'Buy' : 'Too Expensive'}
               </button>
