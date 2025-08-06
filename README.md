@@ -36,6 +36,14 @@ Welcome to **Trivia Daily**, a fun and fast-paced trivia game designed for web b
 ```
 quiz-app/
 ├── frontend/                 # Web UI (HTML/JS/CSS or React)
+│   ├── src//pages/
+|     ├── HomePage.jsx        # Landing screen with Play, Credits, and Store
+|     ├── LogInPage.jsx       # Log In for new users
+|     ├── StorePage.jsx       # Game customization and achievement badges
+|     ├── TopicPage.jsx       # Spin-the-wheel category selector
+|     ├── QuizPage.jsx        # Displays 5 questions with audio and transitions
+|     ├── ResultPage.jsx      # Score summary, leaderboard, streaks, and sharing
+|     └── Credits.jsx         # Acknowledgments and info
 │   ├── index.html
 │   ├── style.css
 │   ├── script.js
@@ -84,6 +92,13 @@ GOOGLE_API_KEY=your_google_gemini_api_key
 
 ### Installation
 
+1. **Install Python dependencies**
+```bash
+pip install -r requirements.txt
+npm install react-custom-roulette --legacy-peer-deps (topic wheel) (only need --legacy-peer-deps if using react ver 19+)
+npm install @fontsource/lexend @fontsource/nunito @fontsource/poppins
+```
+
 1. **Backend**
    ```bash
    cd backend
@@ -93,10 +108,25 @@ GOOGLE_API_KEY=your_google_gemini_api_key
    pip install -r requirements.txt
    ```
 2. **Frontend**
+The frontend is built using React (Vite) with custom styling, animations, and sound. Follow the instructions below to get it running locally.
    ```bash
-   cd ../frontend
-   npm install
+    cd frontend
+    npm install
+    npm install react-custom-roulette --legacy-peer-deps (topic wheel) (only need --legacy-peer-deps if using react ver 19+)
+    npm install @fontsource/lexend @fontsource/nunito @fontsource/poppins
+    npm install react-router-dom  
    ```
+3. **Typography and Styling**
+Fonts are imported locally using @fontsource. The app uses:
+
+Poppins – For headers (h1, h2)
+
+Nunito – For quiz questions
+
+Lexend – For body and caption text
+
+Global styles and reusable classes (e.g., .icon-button) are defined in src/index.css.
+
 ### MySQL Database Setup
 mysql -h database-1.c36awkaocf5l.us-east-2.rds.amazonaws.com -u admin -p
 ```bash
