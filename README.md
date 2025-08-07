@@ -32,40 +32,33 @@
 ## 📁 Project Structure
 
 ```
-quiz-app/
-├── frontend/                 # Web UI (HTML/JS/CSS or React)
-│   ├── src//pages/
-|     ├── HomePage.jsx        # Landing screen with Play, Credits, and Store
-|     ├── LogInPage.jsx       # Log In for new users
-|     ├── StorePage.jsx       # Game customization and achievement badges
-|     ├── TopicPage.jsx       # Spin-the-wheel category selector
-|     ├── QuizPage.jsx        # Displays 5 questions with audio and transitions
-|     ├── ResultPage.jsx      # Score summary, leaderboard, streaks, and sharing
-|     └── Credits.jsx         # Acknowledgments and info
-│   ├── index.html
-│   ├── style.css
-│   ├── script.js
-│   └── assets/               # Icons, fonts, badges
-│
-├── quiz_gen/                # LLM-based trivia generator
-│   ├── generate_quiz.py
-│   ├── topics.txt
-│   ├── questions.json        # Output format
-│   └── utils.py
-│
+RC_PROJECT3/
 ├── backend/                 # API + Firestore logic
 │   ├── app.py
-│   ├── firestore_db.py
-│   └── api_routes/           # API route handlers
-│       ├── quiz.py           # Endpoints like /quiz/today and /quiz/submit
-│       ├── leaderboard.py    # Endpoints like /leaderboard
-│       └── user.py           # Endpoints like /user/streak
-│
-├── shared/                   # Shared formats, mock data
-│   ├── quiz_schema.json
-│   └── test_data.json
-│   └── user_schema.json
-│
+│   ├── import_trivia.py
+│   ├── models.py             # SQLAlchemy models for user, score, quiz
+│   ├── .env
+│   └── quiz_generator/           # API route handlers
+│       └── quiz_gen.py           # LLM-based trivia generator
+|
+├── frontend/quiz-game            # Web UI (HTML/JS/CSS or React)
+│   ├── public/                 # Static files
+│   ├── src/
+│      ├── assets/             # Images, icons, fonts
+│      ├── pages/               # Page components (e.g., Home, QuizPage)
+│          ├── HomePage.jsx        # Landing screen with Play, Credits, and Store
+│          ├── LogInPage.jsx       # Log In for new users
+│          ├── StorePage.jsx       # Game customization and achievement badges
+│          ├── TopicPage.jsx       # Spin-the-wheel category selector
+│          ├── QuizPage.jsx        # Displays 5 questions with audio and transitions
+│          ├── ResultPage.jsx      # Score summary, leaderboard, streaks, and sharing
+|          └── Credits.jsx         # Acknowledgments and info
+│      ├── index.css
+│      ├── App.css
+│      ├── App.jsx
+│      ├── main.jsx
+│      └── assets/               # Icons, fonts, badges
+|  ├── index.html
 ├── README.md
 └── requirements.txt
 ```
